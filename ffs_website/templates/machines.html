@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}FFS Machines{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero-inner { max-width: 1280px; margin: 0 auto; }
+.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
+.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
+.page-hero p { color: var(--muted); margin-top: 0.5rem; }
+.cat-row { background: #fff; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 2rem; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.cat-row-header { padding: 1.8rem 2rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); }
+.cat-row-header h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; }
+.cat-row-header p { color: var(--muted); font-size: 0.88rem; margin-top: 0.3rem; max-width: 600px; }
+.machines-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.machine-item { padding: 1.5rem 2rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); transition: background 0.2s; }
+.machine-item:hover { background: var(--surface2); }
+.machine-item:nth-child(3n) { border-right: none; }
+.machine-name { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--accent); }
+.machine-desc { color: var(--muted); font-size: 0.84rem; line-height: 1.6; margin-bottom: 0.8rem; }
+.machine-specs { background: #f8f9fb; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.76rem; color: var(--muted); font-family: monospace; line-height: 1.8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="/">Home</a> / <span>Machines</span></div>
+    <h1>FFS Machine Catalog</h1>
+    <p>Browse all Form Fill Seal machine categories — {{ categories|length }} types available.</p>
+  </div>
+</div>
+
+<main>
+  {% for cat in categories %}
+  <div class="cat-row">
+    <div class="cat-row-header">
+      <div>
+        <div class="badge badge-orange" style="margin-bottom:0.5rem;">{{ cat.machines|length }} Models</div>
+        <h2>{{ cat.name }}</h2>
+        <p>{{ cat.description }}</p>
+      </div>
+      <a href="{{ url_for('machine_category', slug=cat.slug) }}" class="btn btn-outline btn-sm" style="white-space:nowrap;margin-top:0.3rem;">View All →</a>
+    </div>
+    <div class="machines-grid">
+      {% for machine in cat.machines %}
+      <div class="machine-item">
+        <div class="machine-name">{{ machine.name }}</div>
+        <div class="machine-desc">{{ machine.description }}</div>
+        <div class="machine-specs">{{ machine.specs }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</main>
+{% endblock %}
