@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit' if machine else 'Add' }} Machine{% endblock %}
+{% block page_title %}{{ 'Edit' if machine else 'Add' }} Machine — {{ cat.name }}{% endblock %}
+{% block content %}
+<div style="max-width:640px;">
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ 'Edit Machine' if machine else 'Add Machine to ' + cat.name }}</h2>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="form-group"><label>Model Name</label><input type="text" name="name" value="{{ machine.name if machine else '' }}" placeholder="e.g. VFFS-200" required></div>
+        <div class="form-group"><label>Description</label><textarea name="description" placeholder="Short description of what this machine does...">{{ machine.description if machine else '' }}</textarea></div>
+        <div class="form-group">
+          <label>Technical Specs</label>
+          <input type="text" name="specs" value="{{ machine.specs if machine else '' }}" placeholder="Speed: 200 packs/min | Film width: 100–380mm | Power: 3.5kW">
+          <small style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;display:block;">Use pipe | to separate spec items.</small>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-primary">{{ 'Save Changes' if machine else 'Add Machine' }}</button>
+          <a href="{{ url_for('admin_machines') }}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

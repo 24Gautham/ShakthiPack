@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — Shakthi Pack Machineries</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #f4f6f9; --surface: #ffffff; --border: #dde1e8; --accent: #1a56db; --text: #1a1d26; --muted: #5f6577; --red: #dc2626; --green: #059669; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 50% 50% at 50% 40%, rgba(26,86,219,0.04) 0%, transparent 70%); pointer-events: none; }
+.login-wrap { width: 100%; max-width: 400px; padding: 2rem; }
+.login-logo { text-align: center; margin-bottom: 2.5rem; }
+.login-logo h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: 0.05em; }
+.login-logo h1 span { color: var(--accent); }
+.login-logo p { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.3rem; }
+.login-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.login-card h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem; }
+.login-card .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.8rem; }
+.form-group { margin-bottom: 1.1rem; }
+.form-group label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.45rem; }
+.form-group input { width: 100%; background: #f8f9fb; border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text); font-family: 'Barlow', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+.form-group input:focus { border-color: var(--accent); }
+.submit-btn { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.8rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+.submit-btn:hover { background: #1242b0; }
+.flash { padding: 0.7rem 1rem; border-radius: 7px; font-size: 0.85rem; border-left: 4px solid var(--red); background: rgba(224,80,96,0.1); color: var(--red); margin-bottom: 1rem; }
+.hint { margin-top: 1.2rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 7px; padding: 0.7rem 1rem; font-size: 0.78rem; color: var(--muted); }
+.hint strong { color: var(--accent); }
+.back-link { text-align: center; margin-top: 1.5rem; }
+.back-link a { color: var(--muted); text-decoration: none; font-size: 0.82rem; }
+.back-link a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-logo">
+    <h1>Shakthi<span>Pack</span> Machineries</h1>
+    <p>Admin Panel</p>
+  </div>
+  <div class="login-card">
+    <h2>Sign In</h2>
+    <p class="sub">Enter your credentials to access the admin panel.</p>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% for _, msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+    <form method="POST">
+      <div class="form-group"><label>Username</label><input type="text" name="username" placeholder="admin" autofocus required></div>
+      <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="••••••••" required></div>
+      <button type="submit" class="submit-btn">Sign In →</button>
+    </form>
+    <div class="hint">Default: <strong>admin</strong> / <strong>admin123</strong> — change in Settings after login.</div>
+  </div>
+  <div class="back-link"><a href="/">← Back to Website</a></div>
+</div>
+</body>
+</html>

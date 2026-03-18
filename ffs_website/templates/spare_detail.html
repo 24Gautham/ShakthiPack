@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} Spares{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero-inner { max-width: 1280px; margin: 0 auto; }
+.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
+.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
+.page-hero p { color: var(--muted); margin-top: 0.5rem; }
+.spare-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.spare-card:hover { border-color: #6ee7b7; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(5,150,105,0.08); }
+.spare-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
+.part-no { font-family: monospace; font-size: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--accent); }
+.spare-card h3 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+.spare-card .desc { color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem; }
+.compat { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.compat-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; width: 100%; margin-bottom: 0.2rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="/">Home</a> / <a href="/spares">Spares</a> / <span>{{ category.name }}</span></div>
+    <div class="badge badge-green" style="margin-bottom:0.8rem;">{{ category.spares|length }} Parts</div>
+    <h1>{{ category.name }}</h1>
+    <p>{{ category.description }}</p>
+  </div>
+</div>
+
+<main>
+  <div class="grid-3">
+    {% for spare in category.spares %}
+    <div class="spare-card">
+      <div class="spare-header">
+        <span class="part-no">{{ spare.part_no }}</span>
+      </div>
+      <h3>{{ spare.name }}</h3>
+      <p class="desc">{{ spare.description }}</p>
+      <div class="compat">
+        <span class="compat-label">Compatible with:</span>
+        {% for model in spare.compatible.split(',') %}
+        <span class="tag">{{ model.strip() }}</span>
+        {% endfor %}
+      </div>
+      <a href="{{ url_for('enquiry') }}" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">Enquire for this Part</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="margin-top:3rem;text-align:center;">
+    <a href="{{ url_for('spares') }}" class="btn btn-outline">← Back to All Spares</a>
+  </div>
+</main>
+{% endblock %}
