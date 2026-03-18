@@ -2,8 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import json, os, hashlib
 from functools import wraps
 
+# Optional: load .env in development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 app = Flask(__name__)
-app.secret_key = "ffs_secret_2024"
+# Read secret from environment; fallback only for local/dev (not secure)
+app.secret_key = os.environ.get("FFS_SECRET", "ffs_secret_2024")
 
 DATA_FILE = "data.json"
 
@@ -455,4 +463,7 @@ def admin_settings():
     return render_template("admin/settings.html")
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    debug_env = os.environ.get("FLASK_DEBUG", "").lower()
+    debug = debug_env in ("1", "true", "yes")
+    app.run(host="0.0.0.0", port=port, debug=debug)
