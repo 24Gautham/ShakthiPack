@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Admin Settings{% endblock %}
+{% block content %}
+
+<div style="max-width:500px;">
+  <div class="card">
+    <div class="card-header"><h2>Change Password</h2></div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" name="new_password" placeholder="Enter new password" required minlength="6">
+          <small style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;display:block;">Minimum 6 characters.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Password</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header"><h2>Quick Links</h2></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:0.6rem;">
+      <a href="{{ url_for('index') }}" class="btn btn-outline" target="_blank">🌐 View Public Website</a>
+      <a href="{{ url_for('admin_machines') }}" class="btn btn-outline">⚙️ Manage Machines</a>
+      <a href="{{ url_for('admin_spares') }}" class="btn btn-outline">🔩 Manage Spares</a>
+      <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline">✉️ View Enquiries</a>
+    </div>
+  </div>
+
+  <div class="card mt-3" style="border-color:rgba(224,80,96,0.2);">
+    <div class="card-header" style="border-bottom-color:rgba(224,80,96,0.15);">
+      <h2 style="color:var(--red);">Danger Zone</h2>
+    </div>
+    <div class="card-body">
+      <p class="text-muted" style="font-size:0.85rem;margin-bottom:1rem;">Log out of the admin panel.</p>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">🚪 Logout</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

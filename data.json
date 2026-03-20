@@ -1,0 +1,352 @@
+{
+  "admin": {
+    "username": "admin",
+    "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
+  },
+  "machine_categories": [
+    {
+      "id": 1,
+      "name": "Vertical FFS Machines",
+      "slug": "vertical-ffs",
+      "description": "High-speed vertical form fill seal machines for granules, powders, and liquids.",
+      "image": "vertical.jpg",
+      "machines": [
+        {
+          "id": 101,
+          "name": "VFFS-200",
+          "description": "200 packs/min vertical FFS for granules & snacks",
+          "specs": "Speed: 200 packs/min | Film width: 100\u2013380mm | Power: 3.5kW"
+        },
+        {
+          "id": 102,
+          "name": "VFFS-350 Pro",
+          "description": "Heavy duty model for powder & spice packaging",
+          "specs": "Speed: 350 packs/min | Film width: 150\u2013450mm | Power: 5kW"
+        },
+        {
+          "id": 103,
+          "name": "VFFS-Liquid 100",
+          "description": "Liquid and paste packaging with servo control",
+          "specs": "Speed: 100 packs/min | Volume: 50\u20131000ml | Power: 4kW"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Horizontal FFS Machines",
+      "slug": "horizontal-ffs",
+      "description": "Horizontal form fill seal for biscuits, candy bars, soap, and rigid products.",
+      "image": "horizontal.jpg",
+      "machines": [
+        {
+          "id": 201,
+          "name": "HFFS-Flow 150",
+          "description": "Flow wrap machine for bakery and confectionery products",
+          "specs": "Speed: 150 packs/min | Film width: 200\u2013600mm | Power: 4kW"
+        },
+        {
+          "id": 202,
+          "name": "HFFS-Pillow 200",
+          "description": "Pillow pack wrapper for rigid products",
+          "specs": "Speed: 200 packs/min | Film width: 250\u2013700mm | Power: 5.5kW"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Rotary FFS Machines",
+      "slug": "rotary-ffs",
+      "description": "Rotary pouch form fill seal for stand-up pouches and gusseted bags.",
+      "image": "rotary.jpg",
+      "machines": [
+        {
+          "id": 301,
+          "name": "RFFS-Rotary 8",
+          "description": "8-station rotary FFS for premade pouches",
+          "specs": "Speed: 60 pouches/min | Pouch size: 80\u2013250mm | Power: 6kW"
+        },
+        {
+          "id": 302,
+          "name": "RFFS-Ziplock 12",
+          "description": "12-station for ziplock stand-up pouches",
+          "specs": "Speed: 80 pouches/min | Pouch size: 100\u2013300mm | Power: 7kW"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Multi-Lane FFS Machines",
+      "slug": "multilane-ffs",
+      "description": "Multi-lane sachet machines for ketchup, shampoo, and small portioned products.",
+      "image": "multilane.jpg",
+      "machines": [
+        {
+          "id": 401,
+          "name": "ML-Sachet 4L",
+          "description": "4-lane sachet machine for liquid/semi-liquid products",
+          "specs": "Speed: 400 sachets/min | Volume: 5\u201350ml | Power: 3kW"
+        },
+        {
+          "id": 402,
+          "name": "ML-Sachet 8L",
+          "description": "8-lane high output sachet line",
+          "specs": "Speed: 800 sachets/min | Volume: 5\u2013100ml | Power: 5kW"
+        }
+      ]
+    }
+  ],
+  "spare_categories": [
+    {
+      "id": 1,
+      "name": "Sealing & Heating Parts",
+      "slug": "sealing-heating",
+      "description": "All sealing jaws, heating elements, and temperature-related components.",
+      "spares": [
+        {
+          "id": 1001,
+          "name": "Horizontal Sealing Jaw (VFFS)",
+          "part_no": "VSJ-H-001",
+          "description": "Chrome-plated horizontal sealing jaw for VFFS-200 and VFFS-350",
+          "compatible": "VFFS-200, VFFS-350 Pro"
+        },
+        {
+          "id": 1002,
+          "name": "Vertical Sealing Jaw Set",
+          "part_no": "VSJ-V-002",
+          "description": "Pair of vertical sealing jaws with Teflon coating",
+          "compatible": "VFFS-200, VFFS-350 Pro, VFFS-Liquid 100"
+        },
+        {
+          "id": 1003,
+          "name": "Heating Element 230V/500W",
+          "part_no": "HE-230-500",
+          "description": "Cartridge heater for sealing jaw assembly",
+          "compatible": "All VFFS, HFFS models"
+        },
+        {
+          "id": 1004,
+          "name": "RTD Temperature Sensor PT100",
+          "part_no": "RTD-PT100",
+          "description": "Precision temperature sensor for jaw control",
+          "compatible": "Universal"
+        },
+        {
+          "id": 1005,
+          "name": "Flow Wrap Sealing Roller",
+          "part_no": "FWR-001",
+          "description": "Knurled sealing roller for HFFS flow wrap machines",
+          "compatible": "HFFS-Flow 150, HFFS-Pillow 200"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Drive & Motion Components",
+      "slug": "drive-motion",
+      "description": "Servo drives, motors, belts, chains, and transmission parts.",
+      "spares": [
+        {
+          "id": 2001,
+          "name": "Servo Motor 400W",
+          "part_no": "SM-400W",
+          "description": "AC servo motor for film pulling mechanism",
+          "compatible": "VFFS-200, VFFS-350 Pro"
+        },
+        {
+          "id": 2002,
+          "name": "Timing Belt HTD 5M-750",
+          "part_no": "TB-5M-750",
+          "description": "Reinforced timing belt for main drive",
+          "compatible": "VFFS series"
+        },
+        {
+          "id": 2003,
+          "name": "Gear Box 1:20 Ratio",
+          "part_no": "GB-1-20",
+          "description": "Helical gear reduction box for cutter drive",
+          "compatible": "HFFS-Flow 150"
+        },
+        {
+          "id": 2004,
+          "name": "Linear Guide Rail 600mm",
+          "part_no": "LGR-600",
+          "description": "Precision linear guide with carriage block",
+          "compatible": "RFFS-Rotary 8, RFFS-Ziplock 12"
+        },
+        {
+          "id": 2005,
+          "name": "Chain Sprocket Set",
+          "part_no": "CSS-001",
+          "description": "Drive chain and sprocket for conveyor system",
+          "compatible": "HFFS-Pillow 200"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Film & Forming Parts",
+      "slug": "film-forming",
+      "description": "Forming tubes, film guides, rollers, and bag shaping components.",
+      "spares": [
+        {
+          "id": 3001,
+          "name": "Forming Tube \u00d860mm",
+          "part_no": "FT-060",
+          "description": "Stainless steel forming tube for small pouches",
+          "compatible": "VFFS-200"
+        },
+        {
+          "id": 3002,
+          "name": "Forming Tube \u00d890mm",
+          "part_no": "FT-090",
+          "description": "Medium forming tube for standard packaging",
+          "compatible": "VFFS-200, VFFS-350 Pro"
+        },
+        {
+          "id": 3003,
+          "name": "Film Tension Roller Set",
+          "part_no": "FTR-SET",
+          "description": "Three-roller film tension assembly",
+          "compatible": "VFFS series, HFFS series"
+        },
+        {
+          "id": 3004,
+          "name": "Film Dancer Arm",
+          "part_no": "FDA-001",
+          "description": "Spring-loaded film dancer for consistent tension",
+          "compatible": "All FFS machines"
+        },
+        {
+          "id": 3005,
+          "name": "Gusset Former Plate",
+          "part_no": "GFP-001",
+          "description": "Side gusset forming plate for stand-up pouches",
+          "compatible": "RFFS series"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Pneumatic & Vacuum Parts",
+      "slug": "pneumatic-vacuum",
+      "description": "Air cylinders, valves, suction cups, vacuum pumps, and pneumatic fittings.",
+      "spares": [
+        {
+          "id": 4001,
+          "name": "Air Cylinder \u00d832 \u00d7 100mm",
+          "part_no": "AC-32-100",
+          "description": "Double-acting air cylinder for jaw actuation",
+          "compatible": "VFFS-350 Pro, RFFS series"
+        },
+        {
+          "id": 4002,
+          "name": "Solenoid Valve 5/2-way 1/4\"",
+          "part_no": "SV-52-014",
+          "description": "Pneumatic solenoid valve for cylinder control",
+          "compatible": "Universal"
+        },
+        {
+          "id": 4003,
+          "name": "Vacuum Suction Cup \u00d840mm",
+          "part_no": "VSC-040",
+          "description": "Silicone suction cup for pouch opening",
+          "compatible": "RFFS-Rotary 8, RFFS-Ziplock 12"
+        },
+        {
+          "id": 4004,
+          "name": "Pressure Regulator FRL Unit",
+          "part_no": "FRL-001",
+          "description": "Filter-Regulator-Lubricator assembly",
+          "compatible": "All pneumatic FFS machines"
+        },
+        {
+          "id": 4005,
+          "name": "Vacuum Pump 40L/min",
+          "part_no": "VP-040",
+          "description": "Oil-free vacuum pump for film handling",
+          "compatible": "RFFS series, ML-Sachet series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Control & Electrical Parts",
+      "slug": "control-electrical",
+      "description": "PLCs, HMI screens, sensors, encoders, and electrical components.",
+      "spares": [
+        {
+          "id": 5001,
+          "name": "7\" HMI Touch Panel",
+          "part_no": "HMI-7T",
+          "description": "Color touch HMI for machine control interface",
+          "compatible": "VFFS-350 Pro, HFFS-Pillow 200"
+        },
+        {
+          "id": 5002,
+          "name": "PLC CPU Module",
+          "part_no": "PLC-CPU-01",
+          "description": "Main PLC controller with 32 I/O points",
+          "compatible": "VFFS series"
+        },
+        {
+          "id": 5003,
+          "name": "Proximity Sensor M12 NPN",
+          "part_no": "PS-M12-NPN",
+          "description": "Inductive proximity sensor for position detection",
+          "compatible": "Universal"
+        },
+        {
+          "id": 5004,
+          "name": "Rotary Encoder 600 PPR",
+          "part_no": "RE-600",
+          "description": "Shaft encoder for film length measurement",
+          "compatible": "All FFS machines"
+        },
+        {
+          "id": 5005,
+          "name": "SSR Solid State Relay 40A",
+          "part_no": "SSR-40A",
+          "description": "Solid state relay for heater power control",
+          "compatible": "Universal"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Cutting & Perforating Parts",
+      "slug": "cutting-perforating",
+      "description": "Rotary knives, cross-cut blades, perforation tools, and cutting cylinders.",
+      "spares": [
+        {
+          "id": 6001,
+          "name": "Cross Cut Blade Set",
+          "part_no": "CCB-SET",
+          "description": "Hardened steel cross-cut blade pair",
+          "compatible": "VFFS-200, VFFS-350 Pro"
+        },
+        {
+          "id": 6002,
+          "name": "Rotary Knife Cylinder",
+          "part_no": "RKC-001",
+          "description": "Rotary knife assembly for continuous cutting",
+          "compatible": "HFFS-Flow 150"
+        },
+        {
+          "id": 6003,
+          "name": "Perforation Blade \u00d8150mm",
+          "part_no": "PB-150",
+          "description": "Circular perforation blade for tear-notch",
+          "compatible": "ML-Sachet series"
+        },
+        {
+          "id": 6004,
+          "name": "Anvil Roller (Hardened)",
+          "part_no": "AR-H-001",
+          "description": "Hardened anvil roller for rotary cutting",
+          "compatible": "HFFS series"
+        }
+      ]
+    }
+  ],
+  "enquiries": []
+}

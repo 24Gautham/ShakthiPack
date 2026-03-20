@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Contact & Enquiry{% endblock %}
+{% block extra_css %}
+<style>
+.enquiry-wrap { max-width: 700px; margin: 3rem auto; }
+.form-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.form-card-header { background: linear-gradient(135deg, #eff6ff, #e0ecff); border-bottom: 1px solid var(--border); padding: 2rem; }
+.form-card-header h1 { font-family: var(--font-head); font-size: 2rem; font-weight: 800; }
+.form-card-header p { color: var(--muted); margin-top: 0.4rem; font-size: 0.9rem; }
+.form-body { padding: 2rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { display: block; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; background: #f8f9fb; border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text); font-family: var(--font-body); font-size: 0.9rem; transition: border-color 0.2s; outline: none; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-group textarea { resize: vertical; min-height: 120px; }
+.form-group select option { background: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="enquiry-wrap">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Send an Enquiry</h1>
+        <p>Fill in the form below and our team will get back to you within 24 hours.</p>
+      </div>
+      <div class="form-body">
+        <form method="POST">
+          <div class="form-row">
+            <div class="form-group"><label>Your Name *</label><input type="text" name="name" placeholder="Full name" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" placeholder="you@company.com" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+91 9999 999999"></div>
+            <div class="form-group">
+              <label>Subject *</label>
+              <select name="subject" required>
+                <option value="">Select subject...</option>
+                <option>Machine Purchase Enquiry</option>
+                <option>Spare Parts Enquiry</option>
+                <option>Technical Support</option>
+                <option>General Enquiry</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Message *</label><textarea name="message" placeholder="Describe your requirement — machine model, spare part number, quantity, etc." required></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:0.85rem;font-size:1rem;">Submit Enquiry →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
