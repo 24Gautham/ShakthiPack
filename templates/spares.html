@@ -10,6 +10,8 @@
 .page-hero p { color: var(--muted); margin-top: 0.5rem; }
 .spare-cat-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.25s; text-decoration: none; color: var(--text); display: block; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
 .spare-cat-card:hover { border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(26,86,219,0.08); }
+.spare-cat-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.spare-cat-img-placeholder { width: 100%; height: 160px; background: linear-gradient(135deg,#f0fdf4,#dcfce7); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 .spare-cat-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; }
 .spare-cat-header h2 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; }
 .spare-cat-header p { color: var(--muted); font-size: 0.82rem; margin-top: 0.3rem; }
@@ -38,6 +40,11 @@
   <div class="grid-2">
     {% for cat in categories %}
     <a class="spare-cat-card" href="{{ url_for('spare_category', slug=cat.slug) }}">
+      {% if cat.image %}
+      <img class="spare-cat-img" src="{{ url_for('static', filename='uploads/' + cat.image) }}" alt="{{ cat.name }}">
+      {% else %}
+      <div class="spare-cat-img-placeholder">🔩</div>
+      {% endif %}
       <div class="spare-cat-header">
         <div>
           <div class="badge badge-green" style="margin-bottom:0.5rem;">{{ cat.spares|length }} Parts</div>

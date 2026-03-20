@@ -8,8 +8,11 @@
 .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
 .page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
 .page-hero p { color: var(--muted); margin-top: 0.5rem; }
-.spare-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.spare-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
 .spare-card:hover { border-color: #6ee7b7; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(5,150,105,0.08); }
+.spare-card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.spare-card-img-placeholder { width: 100%; height: 160px; background: linear-gradient(135deg,#f0fdf4,#dcfce7); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.spare-card-body { padding: 1.5rem; }
 .spare-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
 .part-no { font-family: monospace; font-size: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--accent); }
 .spare-card h3 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -33,6 +36,12 @@
   <div class="grid-3">
     {% for spare in category.spares %}
     <div class="spare-card">
+      {% if spare.image %}
+      <img class="spare-card-img" src="{{ url_for('static', filename='uploads/' + spare.image) }}" alt="{{ spare.name }}">
+      {% else %}
+      <div class="spare-card-img-placeholder">🔩</div>
+      {% endif %}
+      <div class="spare-card-body">
       <div class="spare-header">
         <span class="part-no">{{ spare.part_no }}</span>
       </div>
@@ -45,6 +54,7 @@
         {% endfor %}
       </div>
       <a href="{{ url_for('enquiry') }}" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">Enquire for this Part</a>
+      </div>
     </div>
     {% endfor %}
   </div>

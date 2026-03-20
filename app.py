@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-import json, os, hashlib
+import json, os, hashlib, uuid
 from functools import wraps
+from werkzeug.utils import secure_filename
 
 # Optional: load .env in development
 try:
@@ -12,6 +13,22 @@ except Exception:
 app = Flask(__name__)
 # Read secret from environment; fallback only for local/dev (not secure)
 app.secret_key = os.environ.get("FFS_SECRET", "ffs_secret_2024")
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "uploads")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_image(file_field):
+    f = request.files.get(file_field)
+    if f and f.filename and allowed_file(f.filename):
+        ext = f.filename.rsplit(".", 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        f.save(os.path.join(UPLOAD_FOLDER, filename))
+        return filename
+    return ""
 
 DATA_FILE = "data.json"
 
@@ -267,7 +284,7 @@ def admin_add_machine_category():
             "name": request.form["name"],
             "slug": request.form["name"].lower().replace(" ", "-"),
             "description": request.form["description"],
-            "image": "",
+            "image": save_uploaded_image("image"),
             "machines": []
         }
         data["machine_categories"].append(new_cat)
@@ -286,6 +303,9 @@ def admin_edit_machine_category(cat_id):
     if request.method == "POST":
         cat["name"] = request.form["name"]
         cat["description"] = request.form["description"]
+        new_img = save_uploaded_image("image")
+        if new_img:
+            cat["image"] = new_img
         save_data(data)
         flash("Category updated.", "success")
         return redirect(url_for("admin_machines"))
@@ -310,7 +330,8 @@ def admin_add_machine(cat_id):
             "id": max((m["id"] for c in data["machine_categories"] for m in c["machines"]), default=0) + 1,
             "name": request.form["name"],
             "description": request.form["description"],
-            "specs": request.form["specs"]
+            "specs": request.form["specs"],
+            "image": save_uploaded_image("image")
         }
         cat["machines"].append(new_machine)
         save_data(data)
@@ -328,6 +349,9 @@ def admin_edit_machine(cat_id, machine_id):
         machine["name"] = request.form["name"]
         machine["description"] = request.form["description"]
         machine["specs"] = request.form["specs"]
+        new_img = save_uploaded_image("image")
+        if new_img:
+            machine["image"] = new_img
         save_data(data)
         flash("Machine updated.", "success")
         return redirect(url_for("admin_machines"))
@@ -360,6 +384,7 @@ def admin_add_spare_category():
             "name": request.form["name"],
             "slug": request.form["name"].lower().replace(" ", "-"),
             "description": request.form["description"],
+            "image": save_uploaded_image("image"),
             "spares": []
         }
         data["spare_categories"].append(new_cat)
@@ -376,6 +401,9 @@ def admin_edit_spare_category(cat_id):
     if request.method == "POST":
         cat["name"] = request.form["name"]
         cat["description"] = request.form["description"]
+        new_img = save_uploaded_image("image")
+        if new_img:
+            cat["image"] = new_img
         save_data(data)
         flash("Category updated.", "success")
         return redirect(url_for("admin_spares"))
@@ -401,7 +429,8 @@ def admin_add_spare(cat_id):
             "name": request.form["name"],
             "part_no": request.form["part_no"],
             "description": request.form["description"],
-            "compatible": request.form["compatible"]
+            "compatible": request.form["compatible"],
+            "image": save_uploaded_image("image")
         }
         cat["spares"].append(new_spare)
         save_data(data)
@@ -420,6 +449,9 @@ def admin_edit_spare(cat_id, spare_id):
         spare["part_no"] = request.form["part_no"]
         spare["description"] = request.form["description"]
         spare["compatible"] = request.form["compatible"]
+        new_img = save_uploaded_image("image")
+        if new_img:
+            spare["image"] = new_img
         save_data(data)
         flash("Spare updated.", "success")
         return redirect(url_for("admin_spares"))

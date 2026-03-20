@@ -16,6 +16,8 @@
 .machine-item { padding: 1.5rem 2rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); transition: background 0.2s; }
 .machine-item:hover { background: var(--surface2); }
 .machine-item:nth-child(3n) { border-right: none; }
+.machine-item-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 0.8rem; background: #f0f5ff; display: block; }
+.machine-item-placeholder { width: 100%; height: 140px; border-radius: 8px; margin-bottom: 0.8rem; background: linear-gradient(135deg,#f0f5ff,#e8eeff); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
 .machine-name { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--accent); }
 .machine-desc { color: var(--muted); font-size: 0.84rem; line-height: 1.6; margin-bottom: 0.8rem; }
 .machine-specs { background: #f8f9fb; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.76rem; color: var(--muted); font-family: monospace; line-height: 1.8; }
@@ -45,6 +47,11 @@
     <div class="machines-grid">
       {% for machine in cat.machines %}
       <div class="machine-item">
+        {% if machine.image %}
+        <img class="machine-item-img" src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}">
+        {% else %}
+        <div class="machine-item-placeholder">⚙️</div>
+        {% endif %}
         <div class="machine-name">{{ machine.name }}</div>
         <div class="machine-desc">{{ machine.description }}</div>
         <div class="machine-specs">{{ machine.specs }}</div>

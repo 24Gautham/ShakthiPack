@@ -8,9 +8,18 @@
       <h2>{{ 'Edit Category' if cat else 'New Category' }}</h2>
     </div>
     <div class="card-body">
-      <form method="POST">
+      <form method="POST" enctype="multipart/form-data">
         <div class="form-group"><label>Category Name</label><input type="text" name="name" value="{{ cat.name if cat else '' }}" placeholder="e.g. Vertical FFS Machines" required></div>
         <div class="form-group"><label>Description</label><textarea name="description" placeholder="Brief description of this machine category...">{{ cat.description if cat else '' }}</textarea></div>
+        <div class="form-group">
+          <label>Category Image</label>
+          {% if cat and cat.image %}
+          <div style="margin-bottom:0.5rem;"><img src="{{ url_for('static', filename='uploads/' + cat.image) }}" alt="Current image" style="max-height:120px;border-radius:8px;border:1px solid var(--border);"></div>
+          <small style="color:var(--muted);font-size:0.75rem;display:block;margin-bottom:0.4rem;">Upload a new image to replace the current one.</small>
+          {% endif %}
+          <input type="file" name="image" accept="image/*">
+          <small style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;display:block;">Accepted: JPG, PNG, GIF, WEBP.</small>
+        </div>
         <div class="flex gap-2">
           <button type="submit" class="btn btn-primary">{{ 'Save Changes' if cat else 'Create Category' }}</button>
           <a href="{{ url_for('admin_machines') }}" class="btn btn-outline">Cancel</a>
