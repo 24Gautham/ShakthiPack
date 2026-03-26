@@ -11,29 +11,47 @@
 {% for cat in categories %}
 <div class="card mb-3">
   <div class="card-header">
-    <div>
-      <h2>{{ cat.name }}</h2>
-      <p class="text-muted" style="font-size:0.82rem;margin-top:0.2rem;">{{ cat.description }}</p>
+    <div style="display:flex;align-items:center;gap:0.8rem;">
+      {% if cat.image %}
+      <img src="{{ url_for('static', filename='uploads/' + cat.image) }}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;">
+      {% endif %}
+      <div>
+        <h2>{{ cat.name }}</h2>
+        <p class="text-muted" style="font-size:0.82rem;margin-top:0.2rem;">{{ cat.description }}</p>
+      </div>
     </div>
     <div class="flex gap-2">
       <a href="{{ url_for('admin_add_machine', cat_id=cat.id) }}" class="btn btn-success btn-sm">+ Add Machine</a>
-      <a href="{{ url_for('admin_edit_machine_category', cat_id=cat.id) }}" class="btn btn-outline btn-sm">Edit Category</a>
-      <a href="{{ url_for('admin_delete_machine_category', cat_id=cat.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this category and all its machines?')">Delete</a>
+      <a href="{{ url_for('admin_edit_machine_category', cat_id=cat.id) }}" class="btn btn-outline btn-sm">Edit</a>
+      <form method="POST" action="{{ url_for('admin_delete_machine_category', cat_id=cat.id) }}" onsubmit="return confirm('Delete this category and ALL its machines? This cannot be undone.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+      </form>
     </div>
   </div>
   {% if cat.machines %}
   <div style="overflow:auto;">
     <table>
-      <thead><tr><th>Model</th><th>Description</th><th>Specs</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Image</th><th>Model</th><th>Description</th><th>Specs</th><th>Actions</th></tr></thead>
       <tbody>
         {% for m in cat.machines %}
         <tr>
+          <td>
+            {% if m.image %}
+            <img src="{{ url_for('static', filename='uploads/' + m.image) }}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
+            {% else %}
+            <span style="font-size:1.2rem;">⚙️</span>
+            {% endif %}
+          </td>
           <td><strong>{{ m.name }}</strong></td>
-          <td style="max-width:300px;font-size:0.82rem;color:var(--muted);">{{ m.description }}</td>
-          <td style="max-width:250px;" class="font-mono" style="color:var(--muted);">{{ m.specs }}</td>
-          <td class="flex gap-2" style="display:flex;">
+          <td style="max-width:260px;font-size:0.82rem;color:var(--muted);">{{ m.description }}</td>
+          <td style="max-width:220px;font-family:monospace;font-size:0.78rem;color:var(--muted);">{{ m.specs }}</td>
+          <td style="display:flex;gap:0.4rem;align-items:center;">
             <a href="{{ url_for('admin_edit_machine', cat_id=cat.id, machine_id=m.id) }}" class="btn btn-outline btn-sm">Edit</a>
-            <a href="{{ url_for('admin_delete_machine', cat_id=cat.id, machine_id=m.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this machine?')">Del</a>
+            <form method="POST" action="{{ url_for('admin_delete_machine', cat_id=cat.id, machine_id=m.id) }}" onsubmit="return confirm('Delete {{ m.name }}?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-danger btn-sm">Del</button>
+            </form>
           </td>
         </tr>
         {% endfor %}

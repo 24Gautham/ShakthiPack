@@ -103,6 +103,10 @@ footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4
       <a href="{{ url_for('spares') }}" class="{{ 'active' if 'spare' in request.endpoint }}">Spares</a>
       <a href="{{ url_for('enquiry') }}" class="nav-cta {{ 'active' if request.endpoint == 'enquiry' }}">Enquire</a>
     </div>
+    <form action="{{ url_for('search') }}" method="GET" style="display:flex;align-items:center;gap:0.3rem;margin-left:1rem;">
+      <input type="text" name="q" placeholder="Search…" style="border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.7rem;font-size:0.85rem;outline:none;width:160px;font-family:var(--font-body);" value="{{ request.args.get('q','') }}">
+      <button type="submit" style="background:none;border:none;cursor:pointer;font-size:1rem;padding:0.3rem;">🔍</button>
+    </form>
   </div>
 </nav>
 

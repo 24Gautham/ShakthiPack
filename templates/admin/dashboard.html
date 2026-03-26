@@ -5,83 +5,42 @@
 
 <div class="grid-4 mb-3">
   <div class="stat-card">
-    <div class="stat-value">{{ data.machine_categories|length }}</div>
-    <div class="stat-label">Machine Categories</div>
-  </div>
-  <div class="stat-card">
     <div class="stat-value">{{ total_machines }}</div>
     <div class="stat-label">Total Machines</div>
   </div>
   <div class="stat-card">
-    <div class="stat-value">{{ data.spare_categories|length }}</div>
-    <div class="stat-label">Spare Categories</div>
+    <div class="stat-value">{{ total_spares }}</div>
+    <div class="stat-label">Spare Parts</div>
   </div>
-  <div class="stat-card" style="border-color:rgba(240,165,0,0.2);">
-    <div class="stat-value" style="color:var(--green)">{{ total_enquiries }}</div>
-    <div class="stat-label">Enquiries Received</div>
+  <div class="stat-card" style="{{ 'border-left:3px solid #f59e0b;' if unread_enquiries > 0 }}">
+    <div class="stat-value" style="{{ 'color:#d97706;' if unread_enquiries > 0 else 'color:var(--green);' }}">{{ unread_enquiries }}</div>
+    <div class="stat-label">Unread Enquiries</div>
   </div>
-</div>
-
-<div class="grid-2">
-  <div class="card">
-    <div class="card-header">
-      <h2>Machine Categories</h2>
-      <a href="{{ url_for('admin_machines') }}" class="btn btn-outline btn-sm">Manage →</a>
-    </div>
-    <div style="overflow:auto;">
-      <table>
-        <thead><tr><th>Category</th><th>Models</th><th></th></tr></thead>
-        <tbody>
-          {% for cat in data.machine_categories %}
-          <tr>
-            <td><strong>{{ cat.name }}</strong></td>
-            <td><span class="badge badge-orange">{{ cat.machines|length }}</span></td>
-            <td><a href="{{ url_for('admin_edit_machine_category', cat_id=cat.id) }}" class="btn btn-outline btn-sm">Edit</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h2>Spare Categories</h2>
-      <a href="{{ url_for('admin_spares') }}" class="btn btn-outline btn-sm">Manage →</a>
-    </div>
-    <div style="overflow:auto;">
-      <table>
-        <thead><tr><th>Category</th><th>Parts</th><th></th></tr></thead>
-        <tbody>
-          {% for cat in data.spare_categories %}
-          <tr>
-            <td><strong>{{ cat.name }}</strong></td>
-            <td><span class="badge badge-green">{{ cat.spares|length }}</span></td>
-            <td><a href="{{ url_for('admin_edit_spare_category', cat_id=cat.id) }}" class="btn btn-outline btn-sm">Edit</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--muted);">{{ total_enquiries }}</div>
+    <div class="stat-label">Total Enquiries</div>
   </div>
 </div>
 
-{% if data.enquiries %}
+{% if recent_enquiries %}
 <div class="card mt-3">
   <div class="card-header">
-    <h2>Recent Enquiries</h2>
+    <h2>Recent Enquiries
+      {% if unread_enquiries > 0 %}<span class="badge badge-orange" style="margin-left:0.5rem;">{{ unread_enquiries }} new</span>{% endif %}
+    </h2>
     <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline btn-sm">View All →</a>
   </div>
   <div style="overflow:auto;">
     <table>
-      <thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Date</th></tr></thead>
+      <thead><tr><th>Status</th><th>Name</th><th>Subject</th><th>Email</th><th>Date</th></tr></thead>
       <tbody>
-        {% for enq in data.enquiries[-5:]|reverse %}
-        <tr>
+        {% for enq in recent_enquiries %}
+        <tr style="{{ 'background:#fffbeb;' if not enq.get('read') }}">
+          <td>{% if not enq.get('read') %}<span class="badge badge-orange">New</span>{% else %}<span style="color:var(--muted);font-size:0.72rem;">Read</span>{% endif %}</td>
           <td><strong>{{ enq.name }}</strong></td>
-          <td class="text-muted font-mono">{{ enq.email }}</td>
-          <td>{{ enq.subject }}</td>
-          <td class="text-muted" style="font-size:0.78rem;">{{ enq.timestamp }}</td>
+          <td style="font-size:0.85rem;">{{ enq.subject }}</td>
+          <td style="font-size:0.82rem;"><a href="mailto:{{ enq.email }}" style="color:var(--accent);">{{ enq.email }}</a></td>
+          <td style="font-size:0.75rem;color:var(--muted);white-space:nowrap;">{{ enq.timestamp }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -91,7 +50,7 @@
 {% else %}
 <div class="card mt-3" style="text-align:center;">
   <div class="card-body" style="color:var(--muted);padding:3rem;">
-    No enquiries yet. They'll appear here when customers submit the form.
+    ✉️ No enquiries yet. They'll appear here when customers submit the enquiry form.
   </div>
 </div>
 {% endif %}

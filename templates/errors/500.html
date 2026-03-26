@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Server Error{% endblock %}
+{% block content %}
+<main style="text-align:center;padding:6rem 2rem;">
+  <div style="font-size:5rem;margin-bottom:1rem;">⚠️</div>
+  <h1 style="font-family:var(--font-head);font-size:3rem;font-weight:800;margin-bottom:1rem;">Something Went Wrong</h1>
+  <p style="color:var(--muted);font-size:1.1rem;margin-bottom:2rem;">An unexpected error occurred. Please try again or contact support if the problem persists.</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">← Back to Home</a>
+</main>
+{% endblock %}

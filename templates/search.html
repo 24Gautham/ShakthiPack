@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero-inner { max-width: 1280px; margin: 0 auto; }
+.search-bar { display: flex; gap: 0.5rem; margin-top: 1.5rem; max-width: 600px; }
+.search-bar input { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; font-family: var(--font-body); font-size: 0.95rem; outline: none; }
+.search-bar input:focus { border-color: var(--accent); }
+.result-section h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; margin-bottom: 1rem; }
+.result-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 1rem; transition: all 0.2s; text-decoration: none; color: var(--text); }
+.result-card:hover { border-color: #93c5fd; transform: translateX(4px); box-shadow: 0 2px 8px rgba(26,86,219,0.08); }
+.result-icon { font-size: 1.5rem; flex-shrink: 0; }
+.result-name { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
+.result-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+.result-cat { font-size: 0.75rem; color: var(--accent); font-weight: 600; margin-left: auto; white-space: nowrap; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1 style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;">
+      {% if query %}Results for "{{ query }}"{% else %}Search{% endif %}
+    </h1>
+    <form class="search-bar" action="{{ url_for('search') }}" method="GET">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search machines, spare parts, part numbers..." autofocus>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  </div>
+</div>
+<main>
+  {% if query %}
+    {% set total = machines|length + spares|length %}
+    <p style="color:var(--muted);margin-bottom:2rem;">Found {{ total }} result{{ 's' if total != 1 }} for "<strong>{{ query }}</strong>"</p>
+
+    {% if machines %}
+    <div class="result-section" style="margin-bottom:2.5rem;">
+      <h2>⚙️ Machines ({{ machines|length }})</h2>
+      {% for m in machines %}
+      <a class="result-card" href="{{ url_for('machine_category', slug=m.cat_slug) }}">
+        {% if m.image %}
+        <img src="{{ url_for('static', filename='uploads/' + m.image) }}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;">
+        {% else %}
+        <div class="result-icon">⚙️</div>
+        {% endif %}
+        <div>
+          <div class="result-name">{{ m.name }}</div>
+          <div class="result-meta">{{ m.description }}</div>
+        </div>
+        <span class="result-cat">{{ m.category }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if spares %}
+    <div class="result-section">
+      <h2>🔩 Spare Parts ({{ spares|length }})</h2>
+      {% for s in spares %}
+      <a class="result-card" href="{{ url_for('spare_category', slug=s.cat_slug) }}">
+        {% if s.image %}
+        <img src="{{ url_for('static', filename='uploads/' + s.image) }}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;">
+        {% else %}
+        <div class="result-icon">🔩</div>
+        {% endif %}
+        <div>
+          <div class="result-name">{{ s.name }}</div>
+          <div class="result-meta"><span style="font-family:monospace;color:var(--accent);">{{ s.part_no }}</span> — {{ s.description }}</div>
+        </div>
+        <span class="result-cat">{{ s.category }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not machines and not spares %}
+    <div style="text-align:center;padding:4rem 2rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+      <p style="color:var(--muted);font-size:1.1rem;">No results found for "<strong>{{ query }}</strong>".</p>
+      <p style="color:var(--muted);font-size:0.9rem;margin-top:0.5rem;">Try searching by machine model name, part number, or category.</p>
+    </div>
+    {% endif %}
+  {% endif %}
+</main>
+{% endblock %}

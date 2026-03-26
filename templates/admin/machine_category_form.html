@@ -9,6 +9,7 @@
     </div>
     <div class="card-body">
       <form method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group"><label>Category Name</label><input type="text" name="name" value="{{ cat.name if cat else '' }}" placeholder="e.g. Vertical FFS Machines" required></div>
         <div class="form-group"><label>Description</label><textarea name="description" placeholder="Brief description of this machine category...">{{ cat.description if cat else '' }}</textarea></div>
         <div class="form-group">
