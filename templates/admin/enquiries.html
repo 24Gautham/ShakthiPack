@@ -3,17 +3,54 @@
 {% block page_title %}Customer Enquiries{% endblock %}
 {% block content %}
 
+{% set unread_count = enquiries | selectattr('read', 'undefined') | list | length + enquiries | rejectattr('read') | list | length %}
+{% set read_count = enquiries | selectattr('read') | list | length %}
+
+<!-- Toolbar -->
+<div class="flex justify-between items-center mb-3" style="flex-wrap:wrap;gap:0.8rem;">
+  <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+    {% if enquiries %}
+    <form method="POST" action="{{ url_for('admin_mark_all_read') }}" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-success btn-sm">✓ Mark All Read</button>
+    </form>
+    {% if read_count > 0 %}
+    <form method="POST" action="{{ url_for('admin_bulk_delete_enquiries') }}"
+          onsubmit="return confirm('Delete all {{ read_count }} read enquiries? This cannot be undone.')"
+          style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger btn-sm">🗑 Delete Read ({{ read_count }})</button>
+    </form>
+    {% endif %}
+    {% endif %}
+  </div>
+  {% if enquiries %}
+  <a href="{{ url_for('admin_export_enquiries') }}" class="btn btn-outline btn-sm">⬇ Export CSV</a>
+  {% endif %}
+</div>
+
 {% if enquiries %}
 <div class="card">
   <div class="card-header">
-    <h2>All Enquiries ({{ enquiries|length }})</h2>
+    <h2>All Enquiries ({{ enquiries|length }})
+      {% if unread_count > 0 %}<span class="badge badge-orange" style="margin-left:0.5rem;">{{ unread_count }} unread</span>{% endif %}
+    </h2>
   </div>
   <div style="overflow:auto;">
     <table>
-      <thead><tr><th>Status</th><th>Name</th><th>Subject</th><th>Email / Phone</th><th>Date</th><th>Actions</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Name</th>
+          <th>Subject</th>
+          <th>Email / Phone</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
       <tbody>
         {% for enq in enquiries %}
-        <tr style="{{ 'background:#fffbeb;' if not enq.get('read') }}">
+        <tr style="{{ 'background:#fffbeb;' if not enq.get('read') }}" class="enq-row">
           <td>
             {% if not enq.get('read') %}
             <span class="badge badge-orange">New</span>
@@ -22,9 +59,13 @@
             {% endif %}
           </td>
           <td>
-            <strong>{{ enq.name }}</strong>
+            <a href="{{ url_for('admin_view_enquiry', enq_id=enq.id) }}"
+               style="font-weight:700;color:var(--text);text-decoration:none;">{{ enq.name }}</a>
             {% if enq.message %}
-            <div style="font-size:0.78rem;color:var(--muted);margin-top:0.15rem;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ enq.message }}</div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-top:0.15rem;max-width:200px;
+                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              {{ enq.message }}
+            </div>
             {% endif %}
           </td>
           <td style="font-size:0.85rem;">{{ enq.subject }}</td>
@@ -34,13 +75,15 @@
           </td>
           <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap;">{{ enq.timestamp }}</td>
           <td style="display:flex;gap:0.4rem;align-items:center;">
+            <a href="{{ url_for('admin_view_enquiry', enq_id=enq.id) }}" class="btn btn-outline btn-sm">View</a>
             {% if not enq.get('read') %}
             <form method="POST" action="{{ url_for('admin_mark_read', enq_id=enq.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-success btn-sm">✓ Read</button>
+              <button type="submit" class="btn btn-success btn-sm">✓</button>
             </form>
             {% endif %}
-            <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}" onsubmit="return confirm('Delete this enquiry?')">
+            <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}"
+                  onsubmit="return confirm('Delete this enquiry?')">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-danger btn-sm">Del</button>
             </form>
@@ -54,7 +97,9 @@
 {% else %}
 <div style="text-align:center;padding:4rem;color:var(--muted);">
   <div style="font-size:3rem;margin-bottom:1rem;">✉️</div>
-  <p>No enquiries yet.</p>
+  <p style="font-size:1.1rem;">No enquiries yet.</p>
+  <p style="font-size:0.85rem;margin-top:0.4rem;">They will appear here when customers submit the enquiry form.</p>
 </div>
 {% endif %}
+
 {% endblock %}

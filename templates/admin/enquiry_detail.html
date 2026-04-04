@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% block title %}Enquiry — {{ enq.name }}{% endblock %}
+{% block page_title %}Enquiry Detail{% endblock %}
+{% block content %}
+
+<div style="max-width:740px;">
+
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('admin_enquiries') }}" class="btn btn-outline btn-sm">← Back to Enquiries</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="flex-direction:column;align-items:flex-start;gap:0.5rem;">
+      <div style="display:flex;align-items:center;gap:0.8rem;width:100%;justify-content:space-between;">
+        <div>
+          <span class="badge badge-green" style="margin-bottom:0.4rem;">Read</span>
+          <h2 style="margin-top:0.2rem;">{{ enq.subject }}</h2>
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}" onsubmit="return confirm('Delete this enquiry permanently?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
+          </form>
+        </div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);">Received {{ enq.timestamp }}</div>
+    </div>
+
+    <div class="card-body">
+      <!-- Sender info grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">From</div>
+          <div style="font-weight:700;font-size:1rem;">{{ enq.name }}</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Email</div>
+          <a href="mailto:{{ enq.email }}" style="color:var(--accent);font-weight:600;">{{ enq.email }}</a>
+        </div>
+        {% if enq.phone %}
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Phone</div>
+          <a href="tel:{{ enq.phone }}" style="color:var(--text);font-weight:600;">{{ enq.phone }}</a>
+        </div>
+        {% endif %}
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Subject</div>
+          <div style="font-weight:600;">{{ enq.subject }}</div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;">Message</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.2rem;font-size:0.92rem;line-height:1.8;white-space:pre-wrap;">{{ enq.message }}</div>
+      </div>
+
+      <!-- Quick reply button -->
+      <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;gap:0.8rem;align-items:center;">
+        <a href="mailto:{{ enq.email }}?subject=Re: {{ enq.subject | urlencode }}&body=Hi {{ enq.name }},%0A%0AThank you for your enquiry.%0A%0A"
+           class="btn btn-primary">✉ Reply via Email</a>
+        {% if enq.phone %}
+        <a href="tel:{{ enq.phone }}" class="btn btn-outline">📞 Call {{ enq.phone }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

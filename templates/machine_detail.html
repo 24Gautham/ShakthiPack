@@ -52,11 +52,10 @@
         <h3>{{ machine.name }}</h3>
         <p>{{ machine.description }}</p>
         <div class="specs-table">
-          {% for spec in machine.specs.split('|') %}
-          {% set parts = spec.strip().split(':') %}
+          {% for spec in parse_specs(machine.specs) %}
           <div class="spec-row">
-            <span class="spec-key">{{ parts[0].strip() }}</span>
-            <span class="spec-val">{{ parts[1].strip() if parts|length > 1 else '' }}</span>
+            <span class="spec-key">{{ spec.key }}</span>
+            <span class="spec-val">{{ spec.val }}</span>
           </div>
           {% endfor %}
         </div>

@@ -36,6 +36,21 @@ nav { background: #ffffff; border-bottom: 1px solid var(--border); position: sti
 .nav-cta { background: var(--accent); color: #fff !important; font-weight: 700 !important; border-radius: 6px; }
 .nav-cta:hover { background: var(--accent2) !important; color: #fff !important; }
 
+/* ── MOBILE NAV ── */
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+@media (max-width: 768px) {
+  .hamburger { display: flex; }
+  .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); flex-direction: column; gap: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 99; }
+  .nav-links.open { display: flex; }
+  .nav-links a { padding: 0.9rem 2rem; border-radius: 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+  .nav-inner form { display: none !important; }
+}
+
+
 /* ── FLASH ── */
 .flash-wrap { max-width: 1280px; margin: 1rem auto; padding: 0 2rem; }
 .flash { padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.9rem; border-left: 4px solid; }
@@ -97,10 +112,12 @@ footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4
 <nav>
   <div class="nav-inner">
     <a class="logo" href="{{ url_for('index') }}">Shakthi<span>Pack</span> Machineries</a>
-    <div class="nav-links">
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="this.classList.toggle('open');document.getElementById('navLinks').classList.toggle('open')"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="navLinks">
       <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Home</a>
       <a href="{{ url_for('machines') }}" class="{{ 'active' if 'machine' in request.endpoint }}">Machines</a>
       <a href="{{ url_for('spares') }}" class="{{ 'active' if 'spare' in request.endpoint }}">Spares</a>
+      <a href="{{ url_for('contact') }}" class="{{ 'active' if request.endpoint == 'contact' }}">Contact</a>
       <a href="{{ url_for('enquiry') }}" class="nav-cta {{ 'active' if request.endpoint == 'enquiry' }}">Enquire</a>
     </div>
     <form action="{{ url_for('search') }}" method="GET" style="display:flex;align-items:center;gap:0.3rem;margin-left:1rem;">
@@ -136,13 +153,13 @@ footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4
     </div>
     <div class="footer-col">
       <h4>Company</h4>
-      <a href="#">About Us</a>
-      <a href="#">Certifications</a>
+      <a href="{{ url_for('contact') }}">Contact Us</a>
+      <a href="{{ url_for('enquiry') }}">Get a Quote</a>
       <a href="{{ url_for('admin_login') }}">Admin Login</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2024 Shakthi Pack Machineries. All rights reserved.</p>
+    <p>© {{ current_year() }} Shakthi Pack Machineries. All rights reserved.</p>
     <p>Packaging Machine Specialists</p>
   </div>
 </footer>

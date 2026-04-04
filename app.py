@@ -1,3 +1,8 @@
+"""
+ShakthiPack Machineries — Flask Web Application
+Production-ready build.
+"""
+
 from flask import (Flask, render_template, request, redirect, url_for,
                    session, flash, jsonify, abort, make_response)
 import json, os, hashlib, uuid, re, time, logging
@@ -12,6 +17,15 @@ try:
 except Exception:
     pass
 
+# ── LOGGING ───────────────────────────────────────────────────
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("shakthipack")
+
 # ── APP ────────────────────────────────────────────────────────
 app = Flask(__name__)
 
@@ -19,7 +33,7 @@ SECRET = os.environ.get("FFS_SECRET", "")
 if not SECRET:
     import secrets as _s
     SECRET = _s.token_hex(32)
-    logging.warning("FFS_SECRET not set — using a random key (sessions won't survive restarts).")
+    logger.warning("FFS_SECRET not set — using a random key (sessions won't survive restarts).")
 app.secret_key = SECRET
 
 app.config.update(
@@ -27,7 +41,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE   = "Lax",
     SESSION_COOKIE_SECURE     = os.environ.get("HTTPS", "0") == "1",
     PERMANENT_SESSION_LIFETIME= timedelta(hours=8),
-    MAX_CONTENT_LENGTH        = 8 * 1024 * 1024,  # 8 MB
+    MAX_CONTENT_LENGTH        = 8 * 1024 * 1024,
 )
 
 # ── UPLOADS ────────────────────────────────────────────────────
@@ -36,10 +50,10 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 ALLOWED_EXT   = {"png", "jpg", "jpeg", "gif", "webp"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def _allowed(filename: str) -> bool:
+def _allowed(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
-def save_image(field: str) -> str:
+def save_image(field):
     f = request.files.get(field)
     if not (f and f.filename and _allowed(f.filename)):
         return ""
@@ -48,14 +62,14 @@ def save_image(field: str) -> str:
     f.save(os.path.join(UPLOAD_FOLDER, filename))
     return filename
 
-def delete_image(filename: str):
+def delete_image(filename):
     if filename:
         path = os.path.join(UPLOAD_FOLDER, os.path.basename(filename))
         try:
             if os.path.isfile(path):
                 os.remove(path)
-        except OSError:
-            pass
+        except OSError as e:
+            logger.warning("Could not delete image %s: %s", filename, e)
 
 # ── DATA ───────────────────────────────────────────────────────
 DATA_FILE = os.path.join(BASE_DIR, "data.json")
@@ -74,234 +88,104 @@ DEFAULT_DATA = {
         "address":      "Chennai, Tamil Nadu, India"
     },
     "machine_categories": [
-        {
-            "id": 1, "name": "Vertical FFS Machines", "slug": "vertical-ffs",
-            "description": "High-speed vertical form fill seal machines for granules, powders, and liquids.",
-            "image": "",
-            "machines": [
-                {"id": 101, "name": "VFFS-200", "image": "",
-                 "description": "200 packs/min vertical FFS for granules & snacks",
-                 "specs": "Speed: 200 packs/min | Film width: 100-380mm | Power: 3.5kW"},
-                {"id": 102, "name": "VFFS-350 Pro", "image": "",
-                 "description": "Heavy duty model for powder & spice packaging",
-                 "specs": "Speed: 350 packs/min | Film width: 150-450mm | Power: 5kW"},
-                {"id": 103, "name": "VFFS-Liquid 100", "image": "",
-                 "description": "Liquid and paste packaging with servo control",
-                 "specs": "Speed: 100 packs/min | Volume: 50-1000ml | Power: 4kW"}
-            ]
-        },
-        {
-            "id": 2, "name": "Horizontal FFS Machines", "slug": "horizontal-ffs",
-            "description": "Horizontal form fill seal for biscuits, candy bars, soap, and rigid products.",
-            "image": "",
-            "machines": [
-                {"id": 201, "name": "HFFS-Flow 150", "image": "",
-                 "description": "Flow wrap machine for bakery and confectionery products",
-                 "specs": "Speed: 150 packs/min | Film width: 200-600mm | Power: 4kW"},
-                {"id": 202, "name": "HFFS-Pillow 200", "image": "",
-                 "description": "Pillow pack wrapper for rigid products",
-                 "specs": "Speed: 200 packs/min | Film width: 250-700mm | Power: 5.5kW"}
-            ]
-        },
-        {
-            "id": 3, "name": "Rotary FFS Machines", "slug": "rotary-ffs",
-            "description": "Rotary pouch form fill seal for stand-up pouches and gusseted bags.",
-            "image": "",
-            "machines": [
-                {"id": 301, "name": "RFFS-Rotary 8", "image": "",
-                 "description": "8-station rotary FFS for premade pouches",
-                 "specs": "Speed: 60 pouches/min | Pouch size: 80-250mm | Power: 6kW"},
-                {"id": 302, "name": "RFFS-Ziplock 12", "image": "",
-                 "description": "12-station for ziplock stand-up pouches",
-                 "specs": "Speed: 80 pouches/min | Pouch size: 100-300mm | Power: 7kW"}
-            ]
-        },
-        {
-            "id": 4, "name": "Multi-Lane FFS Machines", "slug": "multilane-ffs",
-            "description": "Multi-lane sachet machines for ketchup, shampoo, and small portioned products.",
-            "image": "",
-            "machines": [
-                {"id": 401, "name": "ML-Sachet 4L", "image": "",
-                 "description": "4-lane sachet machine for liquid/semi-liquid products",
-                 "specs": "Speed: 400 sachets/min | Volume: 5-50ml | Power: 3kW"},
-                {"id": 402, "name": "ML-Sachet 8L", "image": "",
-                 "description": "8-lane high output sachet line",
-                 "specs": "Speed: 800 sachets/min | Volume: 5-100ml | Power: 5kW"}
-            ]
-        }
+        {"id": 1,"name": "Vertical FFS Machines","slug": "vertical-ffs","description": "High-speed vertical form fill seal machines for granules, powders, and liquids.","image": "","machines": [
+            {"id": 101,"name": "VFFS-200","image": "","description": "200 packs/min vertical FFS for granules & snacks","specs": "Speed: 200 packs/min | Film width: 100-380mm | Power: 3.5kW"},
+            {"id": 102,"name": "VFFS-350 Pro","image": "","description": "Heavy duty model for powder & spice packaging","specs": "Speed: 350 packs/min | Film width: 150-450mm | Power: 5kW"},
+            {"id": 103,"name": "VFFS-Liquid 100","image": "","description": "Liquid and paste packaging with servo control","specs": "Speed: 100 packs/min | Volume: 50-1000ml | Power: 4kW"}]},
+        {"id": 2,"name": "Horizontal FFS Machines","slug": "horizontal-ffs","description": "Horizontal form fill seal for biscuits, candy bars, soap, and rigid products.","image": "","machines": [
+            {"id": 201,"name": "HFFS-Flow 150","image": "","description": "Flow wrap machine for bakery and confectionery products","specs": "Speed: 150 packs/min | Film width: 200-600mm | Power: 4kW"},
+            {"id": 202,"name": "HFFS-Pillow 200","image": "","description": "Pillow pack wrapper for rigid products","specs": "Speed: 200 packs/min | Film width: 250-700mm | Power: 5.5kW"}]},
+        {"id": 3,"name": "Rotary FFS Machines","slug": "rotary-ffs","description": "Rotary pouch form fill seal for stand-up pouches and gusseted bags.","image": "","machines": [
+            {"id": 301,"name": "RFFS-Rotary 8","image": "","description": "8-station rotary FFS for premade pouches","specs": "Speed: 60 pouches/min | Pouch size: 80-250mm | Power: 6kW"},
+            {"id": 302,"name": "RFFS-Ziplock 12","image": "","description": "12-station for ziplock stand-up pouches","specs": "Speed: 80 pouches/min | Pouch size: 100-300mm | Power: 7kW"}]},
+        {"id": 4,"name": "Multi-Lane FFS Machines","slug": "multilane-ffs","description": "Multi-lane sachet machines for ketchup, shampoo, and small portioned products.","image": "","machines": [
+            {"id": 401,"name": "ML-Sachet 4L","image": "","description": "4-lane sachet machine for liquid/semi-liquid products","specs": "Speed: 400 sachets/min | Volume: 5-50ml | Power: 3kW"},
+            {"id": 402,"name": "ML-Sachet 8L","image": "","description": "8-lane high output sachet line","specs": "Speed: 800 sachets/min | Volume: 5-100ml | Power: 5kW"}]}
     ],
     "spare_categories": [
-        {
-            "id": 1, "name": "Sealing & Heating Parts", "slug": "sealing-heating",
-            "description": "All sealing jaws, heating elements, and temperature-related components.",
-            "image": "",
-            "spares": [
-                {"id": 1001, "name": "Horizontal Sealing Jaw (VFFS)", "part_no": "VSJ-H-001", "image": "",
-                 "description": "Chrome-plated horizontal sealing jaw for VFFS-200 and VFFS-350",
-                 "compatible": "VFFS-200, VFFS-350 Pro"},
-                {"id": 1002, "name": "Vertical Sealing Jaw Set", "part_no": "VSJ-V-002", "image": "",
-                 "description": "Pair of vertical sealing jaws with Teflon coating",
-                 "compatible": "VFFS-200, VFFS-350 Pro, VFFS-Liquid 100"},
-                {"id": 1003, "name": "Heating Element 230V/500W", "part_no": "HE-230-500", "image": "",
-                 "description": "Cartridge heater for sealing jaw assembly",
-                 "compatible": "All VFFS, HFFS models"},
-                {"id": 1004, "name": "RTD Temperature Sensor PT100", "part_no": "RTD-PT100", "image": "",
-                 "description": "Precision temperature sensor for jaw control",
-                 "compatible": "Universal"},
-                {"id": 1005, "name": "Flow Wrap Sealing Roller", "part_no": "FWR-001", "image": "",
-                 "description": "Knurled sealing roller for HFFS flow wrap machines",
-                 "compatible": "HFFS-Flow 150, HFFS-Pillow 200"}
-            ]
-        },
-        {
-            "id": 2, "name": "Drive & Motion Components", "slug": "drive-motion",
-            "description": "Servo drives, motors, belts, chains, and transmission parts.",
-            "image": "",
-            "spares": [
-                {"id": 2001, "name": "Servo Motor 400W", "part_no": "SM-400W", "image": "",
-                 "description": "AC servo motor for film pulling mechanism",
-                 "compatible": "VFFS-200, VFFS-350 Pro"},
-                {"id": 2002, "name": "Timing Belt HTD 5M-750", "part_no": "TB-5M-750", "image": "",
-                 "description": "Reinforced timing belt for main drive",
-                 "compatible": "VFFS series"},
-                {"id": 2003, "name": "Gear Box 1:20 Ratio", "part_no": "GB-1-20", "image": "",
-                 "description": "Helical gear reduction box for cutter drive",
-                 "compatible": "HFFS-Flow 150"},
-                {"id": 2004, "name": "Linear Guide Rail 600mm", "part_no": "LGR-600", "image": "",
-                 "description": "Precision linear guide with carriage block",
-                 "compatible": "RFFS-Rotary 8, RFFS-Ziplock 12"},
-                {"id": 2005, "name": "Chain Sprocket Set", "part_no": "CSS-001", "image": "",
-                 "description": "Drive chain and sprocket for conveyor system",
-                 "compatible": "HFFS-Pillow 200"}
-            ]
-        },
-        {
-            "id": 3, "name": "Film & Forming Parts", "slug": "film-forming",
-            "description": "Forming tubes, film guides, rollers, and bag shaping components.",
-            "image": "",
-            "spares": [
-                {"id": 3001, "name": "Forming Tube 60mm", "part_no": "FT-060", "image": "",
-                 "description": "Stainless steel forming tube for small pouches",
-                 "compatible": "VFFS-200"},
-                {"id": 3002, "name": "Forming Tube 90mm", "part_no": "FT-090", "image": "",
-                 "description": "Medium forming tube for standard packaging",
-                 "compatible": "VFFS-200, VFFS-350 Pro"},
-                {"id": 3003, "name": "Film Tension Roller Set", "part_no": "FTR-SET", "image": "",
-                 "description": "Three-roller film tension assembly",
-                 "compatible": "VFFS series, HFFS series"},
-                {"id": 3004, "name": "Film Dancer Arm", "part_no": "FDA-001", "image": "",
-                 "description": "Spring-loaded film dancer for consistent tension",
-                 "compatible": "All FFS machines"},
-                {"id": 3005, "name": "Gusset Former Plate", "part_no": "GFP-001", "image": "",
-                 "description": "Side gusset forming plate for stand-up pouches",
-                 "compatible": "RFFS series"}
-            ]
-        },
-        {
-            "id": 4, "name": "Pneumatic & Vacuum Parts", "slug": "pneumatic-vacuum",
-            "description": "Air cylinders, valves, suction cups, vacuum pumps, and pneumatic fittings.",
-            "image": "",
-            "spares": [
-                {"id": 4001, "name": "Air Cylinder 32x100mm", "part_no": "AC-32-100", "image": "",
-                 "description": "Double-acting air cylinder for jaw actuation",
-                 "compatible": "VFFS-350 Pro, RFFS series"},
-                {"id": 4002, "name": "Solenoid Valve 5/2-way 1/4in", "part_no": "SV-52-014", "image": "",
-                 "description": "Pneumatic solenoid valve for cylinder control",
-                 "compatible": "Universal"},
-                {"id": 4003, "name": "Vacuum Suction Cup 40mm", "part_no": "VSC-040", "image": "",
-                 "description": "Silicone suction cup for pouch opening",
-                 "compatible": "RFFS-Rotary 8, RFFS-Ziplock 12"},
-                {"id": 4004, "name": "Pressure Regulator FRL Unit", "part_no": "FRL-001", "image": "",
-                 "description": "Filter-Regulator-Lubricator assembly",
-                 "compatible": "All pneumatic FFS machines"},
-                {"id": 4005, "name": "Vacuum Pump 40L/min", "part_no": "VP-040", "image": "",
-                 "description": "Oil-free vacuum pump for film handling",
-                 "compatible": "RFFS series, ML-Sachet series"}
-            ]
-        },
-        {
-            "id": 5, "name": "Control & Electrical Parts", "slug": "control-electrical",
-            "description": "PLCs, HMI screens, sensors, encoders, and electrical components.",
-            "image": "",
-            "spares": [
-                {"id": 5001, "name": "7in HMI Touch Panel", "part_no": "HMI-7T", "image": "",
-                 "description": "Color touch HMI for machine control interface",
-                 "compatible": "VFFS-350 Pro, HFFS-Pillow 200"},
-                {"id": 5002, "name": "PLC CPU Module", "part_no": "PLC-CPU-01", "image": "",
-                 "description": "Main PLC controller with 32 I/O points",
-                 "compatible": "VFFS series"},
-                {"id": 5003, "name": "Proximity Sensor M12 NPN", "part_no": "PS-M12-NPN", "image": "",
-                 "description": "Inductive proximity sensor for position detection",
-                 "compatible": "Universal"},
-                {"id": 5004, "name": "Rotary Encoder 600 PPR", "part_no": "RE-600", "image": "",
-                 "description": "Shaft encoder for film length measurement",
-                 "compatible": "All FFS machines"},
-                {"id": 5005, "name": "SSR Solid State Relay 40A", "part_no": "SSR-40A", "image": "",
-                 "description": "Solid state relay for heater power control",
-                 "compatible": "Universal"}
-            ]
-        },
-        {
-            "id": 6, "name": "Cutting & Perforating Parts", "slug": "cutting-perforating",
-            "description": "Rotary knives, cross-cut blades, perforation tools, and cutting cylinders.",
-            "image": "",
-            "spares": [
-                {"id": 6001, "name": "Cross Cut Blade Set", "part_no": "CCB-SET", "image": "",
-                 "description": "Hardened steel cross-cut blade pair",
-                 "compatible": "VFFS-200, VFFS-350 Pro"},
-                {"id": 6002, "name": "Rotary Knife Cylinder", "part_no": "RKC-001", "image": "",
-                 "description": "Rotary knife assembly for continuous cutting",
-                 "compatible": "HFFS-Flow 150"},
-                {"id": 6003, "name": "Perforation Blade 150mm", "part_no": "PB-150", "image": "",
-                 "description": "Circular perforation blade for tear-notch",
-                 "compatible": "ML-Sachet series"},
-                {"id": 6004, "name": "Anvil Roller (Hardened)", "part_no": "AR-H-001", "image": "",
-                 "description": "Hardened anvil roller for rotary cutting",
-                 "compatible": "HFFS series"}
-            ]
-        }
+        {"id": 1,"name": "Sealing & Heating Parts","slug": "sealing-heating","description": "All sealing jaws, heating elements, and temperature-related components.","image": "","spares": [
+            {"id": 1001,"name": "Horizontal Sealing Jaw (VFFS)","part_no": "VSJ-H-001","image": "","description": "Chrome-plated horizontal sealing jaw for VFFS-200 and VFFS-350","compatible": "VFFS-200, VFFS-350 Pro"},
+            {"id": 1002,"name": "Vertical Sealing Jaw Set","part_no": "VSJ-V-002","image": "","description": "Pair of vertical sealing jaws with Teflon coating","compatible": "VFFS-200, VFFS-350 Pro, VFFS-Liquid 100"},
+            {"id": 1003,"name": "Heating Element 230V/500W","part_no": "HE-230-500","image": "","description": "Cartridge heater for sealing jaw assembly","compatible": "All VFFS, HFFS models"},
+            {"id": 1004,"name": "RTD Temperature Sensor PT100","part_no": "RTD-PT100","image": "","description": "Precision temperature sensor for jaw control","compatible": "Universal"},
+            {"id": 1005,"name": "Flow Wrap Sealing Roller","part_no": "FWR-001","image": "","description": "Knurled sealing roller for HFFS flow wrap machines","compatible": "HFFS-Flow 150, HFFS-Pillow 200"}]},
+        {"id": 2,"name": "Drive & Motion Components","slug": "drive-motion","description": "Servo drives, motors, belts, chains, and transmission parts.","image": "","spares": [
+            {"id": 2001,"name": "Servo Motor 400W","part_no": "SM-400W","image": "","description": "AC servo motor for film pulling mechanism","compatible": "VFFS-200, VFFS-350 Pro"},
+            {"id": 2002,"name": "Timing Belt HTD 5M-750","part_no": "TB-5M-750","image": "","description": "Reinforced timing belt for main drive","compatible": "VFFS series"},
+            {"id": 2003,"name": "Gear Box 1:20 Ratio","part_no": "GB-1-20","image": "","description": "Helical gear reduction box for cutter drive","compatible": "HFFS-Flow 150"},
+            {"id": 2004,"name": "Linear Guide Rail 600mm","part_no": "LGR-600","image": "","description": "Precision linear guide with carriage block","compatible": "RFFS-Rotary 8, RFFS-Ziplock 12"},
+            {"id": 2005,"name": "Chain Sprocket Set","part_no": "CSS-001","image": "","description": "Drive chain and sprocket for conveyor system","compatible": "HFFS-Pillow 200"}]},
+        {"id": 3,"name": "Film & Forming Parts","slug": "film-forming","description": "Forming tubes, film guides, rollers, and bag shaping components.","image": "","spares": [
+            {"id": 3001,"name": "Forming Tube 60mm","part_no": "FT-060","image": "","description": "Stainless steel forming tube for small pouches","compatible": "VFFS-200"},
+            {"id": 3002,"name": "Forming Tube 90mm","part_no": "FT-090","image": "","description": "Medium forming tube for standard packaging","compatible": "VFFS-200, VFFS-350 Pro"},
+            {"id": 3003,"name": "Film Tension Roller Set","part_no": "FTR-SET","image": "","description": "Three-roller film tension assembly","compatible": "VFFS series, HFFS series"},
+            {"id": 3004,"name": "Film Dancer Arm","part_no": "FDA-001","image": "","description": "Spring-loaded film dancer for consistent tension","compatible": "All FFS machines"},
+            {"id": 3005,"name": "Gusset Former Plate","part_no": "GFP-001","image": "","description": "Side gusset forming plate for stand-up pouches","compatible": "RFFS series"}]},
+        {"id": 4,"name": "Pneumatic & Vacuum Parts","slug": "pneumatic-vacuum","description": "Air cylinders, valves, suction cups, vacuum pumps, and pneumatic fittings.","image": "","spares": [
+            {"id": 4001,"name": "Air Cylinder 32x100mm","part_no": "AC-32-100","image": "","description": "Double-acting air cylinder for jaw actuation","compatible": "VFFS-350 Pro, RFFS series"},
+            {"id": 4002,"name": "Solenoid Valve 5/2-way 1/4in","part_no": "SV-52-014","image": "","description": "Pneumatic solenoid valve for cylinder control","compatible": "Universal"},
+            {"id": 4003,"name": "Vacuum Suction Cup 40mm","part_no": "VSC-040","image": "","description": "Silicone suction cup for pouch opening","compatible": "RFFS-Rotary 8, RFFS-Ziplock 12"},
+            {"id": 4004,"name": "Pressure Regulator FRL Unit","part_no": "FRL-001","image": "","description": "Filter-Regulator-Lubricator assembly","compatible": "All pneumatic FFS machines"},
+            {"id": 4005,"name": "Vacuum Pump 40L/min","part_no": "VP-040","image": "","description": "Oil-free vacuum pump for film handling","compatible": "RFFS series, ML-Sachet series"}]},
+        {"id": 5,"name": "Control & Electrical Parts","slug": "control-electrical","description": "PLCs, HMI screens, sensors, encoders, and electrical components.","image": "","spares": [
+            {"id": 5001,"name": "7in HMI Touch Panel","part_no": "HMI-7T","image": "","description": "Color touch HMI for machine control interface","compatible": "VFFS-350 Pro, HFFS-Pillow 200"},
+            {"id": 5002,"name": "PLC CPU Module","part_no": "PLC-CPU-01","image": "","description": "Main PLC controller with 32 I/O points","compatible": "VFFS series"},
+            {"id": 5003,"name": "Proximity Sensor M12 NPN","part_no": "PS-M12-NPN","image": "","description": "Inductive proximity sensor for position detection","compatible": "Universal"},
+            {"id": 5004,"name": "Rotary Encoder 600 PPR","part_no": "RE-600","image": "","description": "Shaft encoder for film length measurement","compatible": "All FFS machines"},
+            {"id": 5005,"name": "SSR Solid State Relay 40A","part_no": "SSR-40A","image": "","description": "Solid state relay for heater power control","compatible": "Universal"}]},
+        {"id": 6,"name": "Cutting & Perforating Parts","slug": "cutting-perforating","description": "Rotary knives, cross-cut blades, perforation tools, and cutting cylinders.","image": "","spares": [
+            {"id": 6001,"name": "Cross Cut Blade Set","part_no": "CCB-SET","image": "","description": "Hardened steel cross-cut blade pair","compatible": "VFFS-200, VFFS-350 Pro"},
+            {"id": 6002,"name": "Rotary Knife Cylinder","part_no": "RKC-001","image": "","description": "Rotary knife assembly for continuous cutting","compatible": "HFFS-Flow 150"},
+            {"id": 6003,"name": "Perforation Blade 150mm","part_no": "PB-150","image": "","description": "Circular perforation blade for tear-notch","compatible": "ML-Sachet series"},
+            {"id": 6004,"name": "Anvil Roller (Hardened)","part_no": "AR-H-001","image": "","description": "Hardened anvil roller for rotary cutting","compatible": "HFFS series"}]}
     ],
     "enquiries": []
 }
 
-def load_data() -> dict:
+def load_data():
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, "w") as f:
             json.dump(DEFAULT_DATA, f, indent=2)
-    with open(DATA_FILE) as f:
-        return json.load(f)
+    try:
+        with open(DATA_FILE) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        logger.error("Failed to load data.json: %s — using defaults", e)
+        return DEFAULT_DATA.copy()
 
-def save_data(data: dict):
+def save_data(data):
     tmp = DATA_FILE + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(data, f, indent=2)
-    os.replace(tmp, DATA_FILE)
+    try:
+        with open(tmp, "w") as f:
+            json.dump(data, f, indent=2)
+        os.replace(tmp, DATA_FILE)
+    except OSError as e:
+        logger.error("Failed to save data.json: %s", e)
+        raise
 
 # ── SECURITY HELPERS ───────────────────────────────────────────
 
-def hash_password(pw: str) -> str:
+def hash_password(pw):
     salt = os.environ.get("FFS_SALT", "shakthipack_change_this_salt_in_production")
     return hashlib.pbkdf2_hmac("sha256", pw.encode(), salt.encode(), 260_000).hex()
 
-# Rate limiting (in-memory, resets on restart)
-_login_attempts: dict = {}
+_login_attempts = {}
 MAX_ATTEMPTS  = 10
 LOCKOUT_SECS  = 300
 
-def _check_rate_limit(ip: str) -> bool:
+def _check_rate_limit(ip):
     now      = time.time()
     attempts = [t for t in _login_attempts.get(ip, []) if now - t < LOCKOUT_SECS]
     _login_attempts[ip] = attempts
     return len(attempts) < MAX_ATTEMPTS
 
-def _record_attempt(ip: str):
+def _record_attempt(ip):
     _login_attempts.setdefault(ip, []).append(time.time())
 
-def _clear_attempts(ip: str):
+def _clear_attempts(ip):
     _login_attempts.pop(ip, None)
 
-# CSRF
-def _csrf_token() -> str:
+def _csrf_token():
     if "csrf_token" not in session:
         session["csrf_token"] = uuid.uuid4().hex
     return session["csrf_token"]
@@ -311,10 +195,25 @@ def _validate_csrf():
     if not token or token != session.get("csrf_token"):
         abort(403)
 
-app.jinja_env.globals["csrf_token"] = _csrf_token
+app.jinja_env.globals["csrf_token"]    = _csrf_token
+app.jinja_env.globals["current_year"]  = lambda: datetime.utcnow().year
 
+def parse_specs(specs_str):
+    """Parse 'Key: Value | Key2: Value2' safely — values may contain colons."""
+    result = []
+    for item in specs_str.split("|"):
+        item = item.strip()
+        if not item:
+            continue
+        idx = item.find(":")
+        if idx != -1:
+            result.append({"key": item[:idx].strip(), "val": item[idx+1:].strip()})
+        else:
+            result.append({"key": item, "val": ""})
+    return result
 
-# Inject unread enquiry count into every template automatically
+app.jinja_env.globals["parse_specs"] = parse_specs
+
 @app.context_processor
 def inject_unread():
     if session.get("admin"):
@@ -325,13 +224,13 @@ def inject_unread():
             unread = 0
         return {"unread_count": unread}
     return {"unread_count": 0}
-# Input helpers
-_SLUG_RE = re.compile(r"[^a-z0-9-]")
 
-def slugify(text: str) -> str:
-    return _SLUG_RE.sub("-", re.sub(r"\s+", "-", text.lower().strip()))
+_SLUG_RE = re.compile(r"[^a-z0-9-]+")
 
-def sanitize(val, maxlen: int = 500) -> str:
+def slugify(text):
+    return _SLUG_RE.sub("-", re.sub(r"\s+", "-", text.lower().strip())).strip("-")
+
+def sanitize(val, maxlen=500):
     return (val or "").strip()[:maxlen]
 
 # ── DECORATORS ────────────────────────────────────────────────
@@ -356,13 +255,23 @@ def csrf_protected(f):
 
 @app.after_request
 def set_security_headers(resp):
-    resp.headers["X-Content-Type-Options"] = "nosniff"
-    resp.headers["X-Frame-Options"]        = "SAMEORIGIN"
-    resp.headers["X-XSS-Protection"]       = "1; mode=block"
-    resp.headers["Referrer-Policy"]        = "strict-origin-when-cross-origin"
-    resp.headers["Permissions-Policy"]     = "geolocation=(), microphone=(), camera=()"
+    resp.headers["X-Content-Type-Options"]  = "nosniff"
+    resp.headers["X-Frame-Options"]         = "SAMEORIGIN"
+    resp.headers["X-XSS-Protection"]        = "1; mode=block"
+    resp.headers["Referrer-Policy"]         = "strict-origin-when-cross-origin"
+    resp.headers["Permissions-Policy"]      = "geolocation=(), microphone=(), camera=()"
+    csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data:; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none';"
+    )
+    resp.headers["Content-Security-Policy"] = csp
     if os.environ.get("HTTPS") == "1":
-        resp.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+        resp.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
     return resp
 
 # ── ERROR HANDLERS ────────────────────────────────────────────
@@ -382,8 +291,62 @@ def too_large(e):
 
 @app.errorhandler(500)
 def server_error(e):
-    logging.exception("Internal error")
+    logger.exception("Internal error")
     return render_template("errors/500.html"), 500
+
+# ── HEALTH CHECK ──────────────────────────────────────────────
+
+@app.route("/health")
+def health():
+    """Liveness/readiness probe for Docker and load balancers."""
+    try:
+        load_data()
+        return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat()}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+# ── ROBOTS & SITEMAP ──────────────────────────────────────────
+
+@app.route("/robots.txt")
+def robots():
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /static/uploads/",
+        "",
+        f"Sitemap: {request.url_root}sitemap.xml",
+    ]
+    resp = make_response("\n".join(lines))
+    resp.content_type = "text/plain"
+    return resp
+
+@app.route("/sitemap.xml")
+def sitemap():
+    data  = load_data()
+    base  = request.url_root.rstrip("/")
+    urls  = [
+        {"loc": base + "/", "priority": "1.0"},
+        {"loc": base + "/machines", "priority": "0.9"},
+        {"loc": base + "/spares", "priority": "0.9"},
+        {"loc": base + "/enquiry", "priority": "0.8"},
+    ]
+    for cat in data["machine_categories"]:
+        urls.append({"loc": f"{base}/machines/{cat['slug']}", "priority": "0.7"})
+    for cat in data["spare_categories"]:
+        urls.append({"loc": f"{base}/spares/{cat['slug']}", "priority": "0.7"})
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for u in urls:
+        xml_parts.append(
+            f"  <url><loc>{u['loc']}</loc><lastmod>{today}</lastmod>"
+            f"<priority>{u['priority']}</priority></url>"
+        )
+    xml_parts.append("</urlset>")
+    resp = make_response("\n".join(xml_parts))
+    resp.content_type = "application/xml"
+    return resp
 
 # ── PUBLIC ROUTES ─────────────────────────────────────────────
 
@@ -481,9 +444,11 @@ def enquiry():
         if errors:
             for err in errors:
                 flash(err, "error")
-            return render_template("enquiry.html", prefill=request.form,
+            # BUG FIX: prefill was passed but never rendered — now correctly re-renders with values
+            return render_template("enquiry.html",
+                                   prefill=request.form,
                                    machine_categories=data["machine_categories"],
-                                   spare_categories=data["spare_categories"])
+                                   spare_categories=data["spare_categories"]), 422
 
         entry = {
             "id":        str(uuid.uuid4()),
@@ -497,6 +462,7 @@ def enquiry():
         }
         data["enquiries"].append(entry)
         save_data(data)
+        logger.info("New enquiry from %s <%s>", name, email)
         flash("Your enquiry has been submitted! We'll get back to you within 24 hours.", "success")
         return redirect(url_for("enquiry"))
 
@@ -521,7 +487,8 @@ def admin_login():
         password = request.form.get("password", "")
         stored   = data["admin"]["password"]
         pbkdf2_ok = hash_password(password) == stored
-        sha256_ok = hashlib.sha256(password.encode()).hexdigest() == stored and not data["admin"].get("pbkdf2")
+        sha256_ok = (hashlib.sha256(password.encode()).hexdigest() == stored
+                     and not data["admin"].get("pbkdf2"))
         if username == data["admin"]["username"] and (pbkdf2_ok or sha256_ok):
             if sha256_ok:
                 data["admin"]["password"] = hash_password(password)
@@ -529,14 +496,16 @@ def admin_login():
                 save_data(data)
             _clear_attempts(ip)
             session.clear()
-            session.permanent        = True
-            session["admin"]         = True
-            session["logged_in_at"]  = time.time()
+            session.permanent       = True
+            session["admin"]        = True
+            session["logged_in_at"] = time.time()
+            logger.info("Admin login from %s", ip)
             next_url = request.args.get("next", "")
             if next_url and next_url.startswith("/admin"):
                 return redirect(next_url)
             return redirect(url_for("admin_dashboard"))
         _record_attempt(ip)
+        logger.warning("Failed login from %s", ip)
         remaining = MAX_ATTEMPTS - len(_login_attempts.get(ip, []))
         flash(f"Invalid credentials. {remaining} attempt(s) remaining before lockout.", "error")
     return render_template("admin/login.html")
@@ -547,8 +516,6 @@ def admin_logout():
     session.clear()
     flash("You have been logged out.", "success")
     return redirect(url_for("index"))
-
-# ── ADMIN DASHBOARD ───────────────────────────────────────────
 
 @app.route("/admin")
 @app.route("/admin/")
@@ -569,8 +536,6 @@ def admin_dashboard():
                            unread_enquiries=unread,
                            recent_enquiries=recent_enq,
                            settings=data.get("site_settings", {}))
-
-# ── ADMIN MACHINE CATEGORIES ──────────────────────────────────
 
 @app.route("/admin/machines")
 @login_required
@@ -644,8 +609,6 @@ def admin_delete_machine_category(cat_id):
         flash("Category and all its machines deleted.", "success")
     return redirect(url_for("admin_machines"))
 
-# ── ADMIN MACHINES ────────────────────────────────────────────
-
 @app.route("/admin/machines/<int:cat_id>/add-machine", methods=["GET", "POST"])
 @login_required
 @csrf_protected
@@ -714,8 +677,6 @@ def admin_delete_machine(cat_id, machine_id):
         save_data(data)
         flash("Machine deleted.", "success")
     return redirect(url_for("admin_machines"))
-
-# ── ADMIN SPARE CATEGORIES ────────────────────────────────────
 
 @app.route("/admin/spares")
 @login_required
@@ -789,8 +750,6 @@ def admin_delete_spare_category(cat_id):
         flash("Category and all its spares deleted.", "success")
     return redirect(url_for("admin_spares"))
 
-# ── ADMIN SPARES ──────────────────────────────────────────────
-
 @app.route("/admin/spares/<int:cat_id>/add-spare", methods=["GET", "POST"])
 @login_required
 @csrf_protected
@@ -862,8 +821,6 @@ def admin_delete_spare(cat_id, spare_id):
         flash("Spare deleted.", "success")
     return redirect(url_for("admin_spares"))
 
-# ── ADMIN ENQUIRIES ───────────────────────────────────────────
-
 @app.route("/admin/enquiries")
 @login_required
 def admin_enquiries():
@@ -893,8 +850,6 @@ def admin_delete_enquiry(enq_id):
     flash("Enquiry deleted.", "success")
     return redirect(url_for("admin_enquiries"))
 
-# ── ADMIN SETTINGS ────────────────────────────────────────────
-
 @app.route("/admin/settings", methods=["GET", "POST"])
 @login_required
 @csrf_protected
@@ -921,7 +876,6 @@ def admin_settings():
                 data["admin"]["force_change"] = False
                 save_data(data)
                 flash("Password updated successfully.", "success")
-
         elif action == "site_settings":
             data["site_settings"] = {
                 "company_name": sanitize(request.form.get("company_name", ""), 120),
@@ -931,10 +885,87 @@ def admin_settings():
             }
             save_data(data)
             flash("Site settings updated.", "success")
-
     return render_template("admin/settings.html",
                            settings=data.get("site_settings", {}),
                            force_change=data["admin"].get("force_change", False))
+
+# ── ADMIN ENQUIRIES — EXTENDED ────────────────────────────────
+
+@app.route("/admin/enquiries/<enq_id>")
+@login_required
+def admin_view_enquiry(enq_id):
+    """Full enquiry detail view; auto-marks as read."""
+    data = load_data()
+    enq  = next((e for e in data["enquiries"] if e["id"] == enq_id), None)
+    if not enq:
+        abort(404)
+    if not enq.get("read"):
+        enq["read"] = True
+        save_data(data)
+    return render_template("admin/enquiry_detail.html", enq=enq)
+
+@app.route("/admin/enquiries/mark-all-read", methods=["POST"])
+@login_required
+@csrf_protected
+def admin_mark_all_read():
+    data = load_data()
+    changed = 0
+    for e in data["enquiries"]:
+        if not e.get("read"):
+            e["read"] = True
+            changed += 1
+    save_data(data)
+    flash(f"Marked {changed} enquir{'y' if changed == 1 else 'ies'} as read.", "success")
+    return redirect(url_for("admin_enquiries"))
+
+@app.route("/admin/enquiries/bulk-delete", methods=["POST"])
+@login_required
+@csrf_protected
+def admin_bulk_delete_enquiries():
+    """Delete all READ enquiries at once."""
+    data = load_data()
+    before = len(data["enquiries"])
+    data["enquiries"] = [e for e in data["enquiries"] if not e.get("read")]
+    deleted = before - len(data["enquiries"])
+    save_data(data)
+    flash(f"Deleted {deleted} read enquir{'y' if deleted == 1 else 'ies'}.", "success")
+    return redirect(url_for("admin_enquiries"))
+
+@app.route("/admin/enquiries/export.csv")
+@login_required
+def admin_export_enquiries():
+    """Export all enquiries as a CSV download."""
+    import csv, io
+    data = load_data()
+    enquiries = sorted(data["enquiries"], key=lambda x: x["timestamp"], reverse=True)
+
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["ID", "Name", "Email", "Phone", "Subject", "Message", "Timestamp", "Read"])
+    for e in enquiries:
+        writer.writerow([
+            e.get("id", ""),
+            e.get("name", ""),
+            e.get("email", ""),
+            e.get("phone", ""),
+            e.get("subject", ""),
+            e.get("message", "").replace("\n", " "),
+            e.get("timestamp", ""),
+            "Yes" if e.get("read") else "No",
+        ])
+
+    filename = f"enquiries_{datetime.utcnow().strftime('%Y%m%d_%H%M')}.csv"
+    resp = make_response(buf.getvalue())
+    resp.headers["Content-Type"]        = "text/csv; charset=utf-8"
+    resp.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    return resp
+
+# ── PUBLIC: CONTACT / ABOUT PAGE ──────────────────────────────
+
+@app.route("/contact")
+def contact():
+    data = load_data()
+    return render_template("contact.html", settings=data.get("site_settings", {}))
 
 # ── ENTRY POINT ───────────────────────────────────────────────
 
@@ -942,5 +973,5 @@ if __name__ == "__main__":
     port  = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes")
     if debug:
-        logging.warning("Running in DEBUG mode — do not use in production.")
+        logger.warning("Running in DEBUG mode — do not use in production.")
     app.run(host="0.0.0.0", port=port, debug=debug)

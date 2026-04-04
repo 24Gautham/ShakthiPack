@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Contact Us{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero-inner { max-width: 1280px; margin: 0 auto; }
+.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
+.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
+.page-hero p { color: var(--muted); margin-top: 0.5rem; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 2.5rem; margin-top: 3rem; }
+.contact-info-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 2rem; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.contact-info-card h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; }
+.contact-info-card > p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.8rem; line-height: 1.7; }
+.contact-row { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+.contact-row:last-child { border-bottom: none; }
+.contact-icon { width: 40px; height: 40px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.contact-row-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.contact-row-value { font-size: 0.95rem; font-weight: 500; margin-top: 0.15rem; }
+.contact-row-value a { color: var(--accent); text-decoration: none; }
+.contact-row-value a:hover { text-decoration: underline; }
+.enquiry-panel { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.enquiry-panel-head { background: linear-gradient(135deg, #eff6ff, #e0ecff); border-bottom: 1px solid var(--border); padding: 2rem; }
+.enquiry-panel-head h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; }
+.enquiry-panel-head p { color: var(--muted); font-size: 0.88rem; margin-top: 0.3rem; }
+.hours-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+.hours-card { background: #f8f9fb; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+.hours-card .day { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.hours-card .time { font-family: var(--font-head); font-size: 1rem; font-weight: 700; margin-top: 0.2rem; }
+@media (max-width: 768px) {
+  .contact-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="{{ url_for('index') }}">Home</a> / <span>Contact</span></div>
+    <h1>Get in Touch</h1>
+    <p>Our team is ready to help with machine enquiries, spare part orders, and technical support.</p>
+  </div>
+</div>
+
+<main>
+  <div class="contact-grid">
+
+    <!-- Left: Info -->
+    <div>
+      <div class="contact-info-card">
+        <h2>{{ settings.get('company_name', 'Shakthi Pack Machineries') }}</h2>
+        <p>Leading manufacturer of Form Fill Seal packaging machines and genuine spare parts for food, pharma, and FMCG industries.</p>
+
+        {% if settings.get('phone') %}
+        <div class="contact-row">
+          <div class="contact-icon">📞</div>
+          <div>
+            <div class="contact-row-label">Phone</div>
+            <div class="contact-row-value"><a href="tel:{{ settings.phone }}">{{ settings.phone }}</a></div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if settings.get('email') %}
+        <div class="contact-row">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-row-label">Email</div>
+            <div class="contact-row-value"><a href="mailto:{{ settings.email }}">{{ settings.email }}</a></div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if settings.get('address') %}
+        <div class="contact-row">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-row-label">Address</div>
+            <div class="contact-row-value">{{ settings.address }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="hours-grid" style="margin-top:1.5rem;">
+          <div class="hours-card">
+            <div class="day">Weekdays</div>
+            <div class="time">9 AM – 6 PM</div>
+          </div>
+          <div class="hours-card">
+            <div class="day">Saturday</div>
+            <div class="time">9 AM – 2 PM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Enquiry CTA panel -->
+    <div>
+      <div class="enquiry-panel">
+        <div class="enquiry-panel-head">
+          <h2>Send an Enquiry</h2>
+          <p>Fill out our online form and we'll respond within 24 hours on business days.</p>
+        </div>
+        <div style="padding:2rem;">
+          <p style="color:var(--muted);font-size:0.9rem;line-height:1.7;margin-bottom:1.5rem;">
+            Whether you need a new packaging machine, replacement spare parts, technical support,
+            or a custom solution — our engineering team is here to help.
+          </p>
+          <a href="{{ url_for('enquiry') }}" class="btn btn-primary" style="font-size:1rem;padding:0.8rem 2rem;width:100%;justify-content:center;">
+            Go to Enquiry Form →
+          </a>
+
+          <div style="margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border);">
+            <p style="font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;">What we handle</p>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+              {% for item in [
+                ('⚙️', 'Machine Purchase Enquiries'),
+                ('🔩', 'Spare Parts Orders'),
+                ('🛠', 'Technical Support & Commissioning'),
+                ('📦', 'Custom Packaging Solutions'),
+                ('🚚', 'Bulk & Export Orders')
+              ] %}
+              <div style="display:flex;gap:0.7rem;align-items:center;font-size:0.88rem;">
+                <span>{{ item[0] }}</span><span>{{ item[1] }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+{% endblock %}
