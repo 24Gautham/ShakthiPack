@@ -2,65 +2,103 @@
 {% block title %}{{ category.name }} Spares{% endblock %}
 {% block extra_css %}
 <style>
-.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero { background: linear-gradient(135deg,#f0fdf4,#dcfce7 60%,#f0fdf4); border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
 .page-hero-inner { max-width: 1280px; margin: 0 auto; }
-.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb { display: flex; gap: 0.4rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
 .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
-.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
-.page-hero p { color: var(--muted); margin-top: 0.5rem; }
-.spare-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.spare-card:hover { border-color: #6ee7b7; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(5,150,105,0.08); }
-.spare-card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
-.spare-card-img-placeholder { width: 100%; height: 160px; background: linear-gradient(135deg,#f0fdf4,#dcfce7); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
-.spare-card-body { padding: 1.5rem; }
-.spare-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
-.part-no { font-family: monospace; font-size: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--accent); }
-.spare-card h3 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
-.spare-card .desc { color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem; }
-.compat { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.compat-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; width: 100%; margin-bottom: 0.2rem; }
+.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; line-height: 1.1; }
+.page-hero p { color: var(--muted); margin-top: 0.5rem; max-width: 640px; line-height: 1.7; }
+
+.spare-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.22s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.spare-card:hover { border-color: #6ee7b7; box-shadow: 0 8px 24px rgba(5,150,105,0.09); transform: translateY(-3px); }
+
+.spare-img-wrap { position: relative; background: linear-gradient(135deg,#f0fdf4,#dcfce7); border-bottom: 1px solid var(--border); min-height: 170px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.spare-img-wrap img { width: 100%; height: 170px; object-fit: cover; display: block; }
+.spare-placeholder { font-size: 3rem; opacity: 0.5; }
+
+.spare-body { padding: 1.4rem; flex: 1; }
+.part-no-badge { display: inline-block; font-family: monospace; font-size: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.22rem 0.6rem; border-radius: 5px; color: var(--accent); font-weight: 600; margin-bottom: 0.7rem; letter-spacing: 0.04em; }
+.spare-body h3 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.25; }
+.spare-body .desc { color: var(--muted); font-size: 0.86rem; line-height: 1.65; margin-bottom: 1rem; }
+
+.compat-section { margin-bottom: 1rem; }
+.compat-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+.compat-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.compat-tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.18rem 0.55rem; font-size: 0.74rem; color: var(--muted); }
+
+.spare-footer { padding: 1.1rem 1.4rem; border-top: 1px solid var(--border); background: #fafbfd; }
+.enquiry-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; background: transparent; color: var(--green); border: 1.5px solid var(--green); border-radius: 8px; padding: 0.68rem 1rem; font-family: var(--font-body); font-weight: 700; font-size: 0.88rem; text-decoration: none; cursor: pointer; transition: all 0.18s; }
+.enquiry-btn:hover { background: var(--green); color: #fff; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-hero">
   <div class="page-hero-inner">
-    <div class="breadcrumb"><a href="/">Home</a> / <a href="/spares">Spares</a> / <span>{{ category.name }}</span></div>
-    <div class="badge badge-green" style="margin-bottom:0.8rem;">{{ category.spares|length }} Parts</div>
+    <div class="breadcrumb">
+      <a href="{{ url_for('index') }}">Home</a>
+      <span>/</span>
+      <a href="{{ url_for('spares') }}">Spares</a>
+      <span>/</span>
+      <span style="color:var(--text);">{{ category.name }}</span>
+    </div>
+    <div class="badge badge-green" style="margin-bottom:0.8rem;">{{ category.spares|length }} Part{{ 's' if category.spares|length != 1 }}</div>
     <h1>{{ category.name }}</h1>
     <p>{{ category.description }}</p>
   </div>
 </div>
 
 <main>
+  {% if category.spares %}
   <div class="grid-3">
     {% for spare in category.spares %}
     <div class="spare-card">
-      {% if spare.image %}
-      <img class="spare-card-img" src="{{ url_for('static', filename='uploads/' + spare.image) }}" alt="{{ spare.name }}">
-      {% else %}
-      <div class="spare-card-img-placeholder">🔩</div>
-      {% endif %}
-      <div class="spare-card-body">
-      <div class="spare-header">
-        <span class="part-no">{{ spare.part_no }}</span>
+
+      <div class="spare-img-wrap">
+        {% if spare.image %}
+        <img src="{{ url_for('static', filename='uploads/' + spare.image) }}" alt="{{ spare.name }}">
+        {% else %}
+        <div class="spare-placeholder">🔩</div>
+        {% endif %}
       </div>
-      <h3>{{ spare.name }}</h3>
-      <p class="desc">{{ spare.description }}</p>
-      <div class="compat">
-        <span class="compat-label">Compatible with:</span>
-        {% for model in spare.compatible.split(',') %}
-        <span class="tag">{{ model.strip() }}</span>
-        {% endfor %}
+
+      <div class="spare-body">
+        <div class="part-no-badge">{{ spare.part_no }}</div>
+        <h3>{{ spare.name }}</h3>
+        <p class="desc">{{ spare.description }}</p>
+        {% if spare.compatible %}
+        <div class="compat-section">
+          <div class="compat-label">Compatible with</div>
+          <div class="compat-tags">
+            {% for model in spare.compatible.split(',') %}
+            <span class="compat-tag">{{ model.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
-      <a href="{{ url_for('enquiry') }}" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">Enquire for this Part</a>
+
+      <div class="spare-footer">
+        <a class="enquiry-btn"
+           href="{{ url_for('enquiry', subject='Spare Parts Enquiry', item=spare.part_no ~ ' — ' ~ spare.name, message='I need the following spare part:\n\nPart: ' ~ spare.name ~ '\nPart No: ' ~ spare.part_no ~ '\nCompatible with: ' ~ spare.compatible ~ '\n\nPlease share availability, price, and lead time.') }}">
+          🔩 Enquire for {{ spare.part_no }}
+        </a>
       </div>
+
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <div style="text-align:center;padding:4rem;color:var(--muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">🔩</div>
+    <p>No spare parts in this category yet.</p>
+  </div>
+  {% endif %}
 
-  <div style="margin-top:3rem;text-align:center;">
+  <div style="margin-top:3rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
     <a href="{{ url_for('spares') }}" class="btn btn-outline">← Back to All Spares</a>
+    <a href="{{ url_for('enquiry', subject='Spare Parts Enquiry', item=category.name, message='I need spare parts from your ' ~ category.name ~ ' range. Please share your catalog and pricing.') }}"
+       class="btn btn-primary">Enquire About This Category →</a>
   </div>
 </main>
 {% endblock %}

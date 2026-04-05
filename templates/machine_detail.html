@@ -2,55 +2,74 @@
 {% block title %}{{ category.name }}{% endblock %}
 {% block extra_css %}
 <style>
-.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero { background: linear-gradient(135deg,#f0f5ff,#e8eeff); border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
 .page-hero-inner { max-width: 1280px; margin: 0 auto; }
-.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb { display: flex; gap: 0.4rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
 .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
-.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
-.page-hero p { color: var(--muted); margin-top: 0.5rem; }
-.machine-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: all 0.25s; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.machine-card:hover { border-color: #93c5fd; transform: translateY(-3px); box-shadow: 0 6px 16px rgba(26,86,219,0.08); }
-.machine-card-top { background: linear-gradient(135deg, #f0f5ff, #e8eeff); padding: 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 180px; overflow: hidden; }
-.machine-card-top img { width: 100%; height: 180px; object-fit: cover; display: block; }
-.machine-icon { font-size: 3rem; opacity: 0.8; padding: 2rem; }
-.machine-card-body { padding: 1.5rem; }
-.machine-model { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
-.machine-card-body h3 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.6rem; }
-.machine-card-body p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 1.2rem; }
-.specs-table { background: #f8f9fb; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-.specs-table .spec-row { display: flex; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-.specs-table .spec-row:last-child { border-bottom: none; }
-.spec-key { color: var(--muted); width: 40%; }
+.breadcrumb span { color: var(--muted); }
+.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; line-height: 1.1; }
+.page-hero p { color: var(--muted); margin-top: 0.5rem; max-width: 640px; line-height: 1.7; }
+
+.machine-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+.machine-card:hover { border-color: #93c5fd; box-shadow: 0 8px 24px rgba(26,86,219,0.1); transform: translateY(-3px); }
+
+.machine-img-wrap { position: relative; background: linear-gradient(135deg,#f0f5ff,#e8eeff); border-bottom: 1px solid var(--border); min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.machine-img-wrap img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.machine-placeholder { font-size: 3.5rem; opacity: 0.5; }
+.machine-badge { position: absolute; top: 0.8rem; left: 0.8rem; background: var(--accent); color: #fff; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 4px; }
+
+.machine-body { padding: 1.5rem; flex: 1; }
+.machine-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
+.machine-body h3 { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2; }
+.machine-body .desc { color: var(--muted); font-size: 0.88rem; line-height: 1.65; margin-bottom: 1.2rem; }
+
+.specs-table { background: #f8f9fb; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 1.2rem; }
+.spec-row { display: flex; align-items: baseline; padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+.spec-row:last-child { border-bottom: none; }
+.spec-key { color: var(--muted); width: 42%; flex-shrink: 0; }
 .spec-val { color: var(--text); font-weight: 600; }
-.machine-card-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--border); }
+
+.machine-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--border); background: #fafbfd; }
+.enquiry-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.75rem 1.2rem; font-family: var(--font-body); font-weight: 700; font-size: 0.92rem; text-decoration: none; cursor: pointer; transition: background 0.18s, transform 0.1s; }
+.enquiry-btn:hover { background: var(--accent2); transform: scale(1.01); }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-hero">
   <div class="page-hero-inner">
-    <div class="breadcrumb"><a href="/">Home</a> / <a href="/machines">Machines</a> / <span>{{ category.name }}</span></div>
-    <div class="badge badge-orange" style="margin-bottom:0.8rem;">{{ category.machines|length }} Models</div>
+    <div class="breadcrumb">
+      <a href="{{ url_for('index') }}">Home</a>
+      <span>/</span>
+      <a href="{{ url_for('machines') }}">Machines</a>
+      <span>/</span>
+      <span style="color:var(--text);">{{ category.name }}</span>
+    </div>
+    <div class="badge badge-orange" style="margin-bottom:0.8rem;">{{ category.machines|length }} Model{{ 's' if category.machines|length != 1 }}</div>
     <h1>{{ category.name }}</h1>
     <p>{{ category.description }}</p>
   </div>
 </div>
 
 <main>
+  {% if category.machines %}
   <div class="grid-3">
     {% for machine in category.machines %}
     <div class="machine-card">
-      <div class="machine-card-top">
+
+      <div class="machine-img-wrap">
+        <div class="machine-badge">Model</div>
         {% if machine.image %}
         <img src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}">
         {% else %}
-        <div class="machine-icon">⚙️</div>
+        <div class="machine-placeholder">⚙️</div>
         {% endif %}
       </div>
-      <div class="machine-card-body">
-        <div class="machine-model">Model</div>
+
+      <div class="machine-body">
+        <div class="machine-label">{{ category.name }}</div>
         <h3>{{ machine.name }}</h3>
-        <p>{{ machine.description }}</p>
+        <p class="desc">{{ machine.description }}</p>
         <div class="specs-table">
           {% for spec in parse_specs(machine.specs) %}
           <div class="spec-row">
@@ -60,15 +79,28 @@
           {% endfor %}
         </div>
       </div>
-      <div class="machine-card-footer">
-        <a href="{{ url_for('enquiry') }}" class="btn btn-primary" style="width:100%;justify-content:center;">Request Quote →</a>
+
+      <div class="machine-footer">
+        <a class="enquiry-btn"
+           href="{{ url_for('enquiry', subject='Machine Purchase Enquiry', item=machine.name, message='I am interested in the ' ~ machine.name ~ ' (' ~ category.name ~ '). Please share pricing, lead time, and availability.') }}">
+          ⚙️ Request Quote for {{ machine.name }}
+        </a>
       </div>
+
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <div style="text-align:center;padding:4rem;color:var(--muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">⚙️</div>
+    <p>No machines in this category yet.</p>
+  </div>
+  {% endif %}
 
-  <div style="margin-top:3rem;text-align:center;">
+  <div style="margin-top:3rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
     <a href="{{ url_for('machines') }}" class="btn btn-outline">← Back to All Machines</a>
+    <a href="{{ url_for('enquiry', subject='Machine Purchase Enquiry', item=category.name, message='I would like information about your ' ~ category.name ~ ' range.') }}"
+       class="btn btn-primary">Enquire About This Range →</a>
   </div>
 </main>
 {% endblock %}

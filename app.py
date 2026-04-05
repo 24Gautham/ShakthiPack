@@ -450,12 +450,14 @@ def enquiry():
                                    machine_categories=data["machine_categories"],
                                    spare_categories=data["spare_categories"]), 422
 
+        item = sanitize(request.form.get("item", ""), 200)
         entry = {
             "id":        str(uuid.uuid4()),
             "name":      name,
             "email":     email,
             "phone":     phone,
             "subject":   subject,
+            "item":      item,
             "message":   message,
             "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
             "read":      False
@@ -466,7 +468,13 @@ def enquiry():
         flash("Your enquiry has been submitted! We'll get back to you within 24 hours.", "success")
         return redirect(url_for("enquiry"))
 
-    return render_template("enquiry.html", prefill={},
+    # Auto-fill from GET params: ?subject=...&item=...&message=...
+    prefill = {
+        "subject": sanitize(request.args.get("subject", ""), 120),
+        "item":    sanitize(request.args.get("item", ""), 200),
+        "message": sanitize(request.args.get("message", ""), 2000),
+    }
+    return render_template("enquiry.html", prefill=prefill,
                            machine_categories=data["machine_categories"],
                            spare_categories=data["spare_categories"])
 

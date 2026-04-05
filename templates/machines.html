@@ -2,34 +2,48 @@
 {% block title %}FFS Machines{% endblock %}
 {% block extra_css %}
 <style>
-.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero { background: linear-gradient(135deg,#f0f5ff,#e8eeff); border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
 .page-hero-inner { max-width: 1280px; margin: 0 auto; }
-.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb { display: flex; gap: 0.4rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
 .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
 .page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
 .page-hero p { color: var(--muted); margin-top: 0.5rem; }
-.cat-row { background: #fff; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 2rem; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.cat-row-header { padding: 1.8rem 2rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); }
+.cat-row { background: #fff; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 2rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.cat-row-header { padding: 1.8rem 2rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); background: #fafbfd; gap: 1rem; }
 .cat-row-header h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; }
-.cat-row-header p { color: var(--muted); font-size: 0.88rem; margin-top: 0.3rem; max-width: 600px; }
-.machines-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
-.machine-item { padding: 1.5rem 2rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); transition: background 0.2s; }
-.machine-item:hover { background: var(--surface2); }
+.cat-row-header p { color: var(--muted); font-size: 0.88rem; margin-top: 0.3rem; max-width: 580px; }
+.cat-row-actions { display: flex; gap: 0.5rem; align-items: flex-start; flex-shrink: 0; flex-wrap: wrap; }
+.machines-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+.machine-item { padding: 1.5rem 1.8rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); transition: background 0.18s; }
+.machine-item:hover { background: #f8faff; }
 .machine-item:nth-child(3n) { border-right: none; }
-.machine-item-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 0.8rem; background: #f0f5ff; display: block; }
-.machine-item-placeholder { width: 100%; height: 140px; border-radius: 8px; margin-bottom: 0.8rem; background: linear-gradient(135deg,#f0f5ff,#e8eeff); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
-.machine-name { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--accent); }
-.machine-desc { color: var(--muted); font-size: 0.84rem; line-height: 1.6; margin-bottom: 0.8rem; }
-.machine-specs { background: #f8f9fb; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.76rem; color: var(--muted); font-family: monospace; line-height: 1.8; }
+.machine-item:last-child, .machine-item:nth-last-child(-n+3):nth-child(3n+1),
+.machine-item:nth-last-child(-n+2):nth-child(3n+2) { border-bottom: none; }
+.machine-img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 0.8rem; display: block; }
+.machine-placeholder { width: 100%; height: 130px; border-radius: 8px; margin-bottom: 0.8rem; background: linear-gradient(135deg,#f0f5ff,#e8eeff); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; }
+.machine-name { font-family: var(--font-head); font-size: 1.05rem; font-weight: 800; color: var(--accent); margin-bottom: 0.3rem; }
+.machine-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.7rem; }
+.machine-specs-preview { background: #f8f9fb; border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.74rem; color: var(--muted); font-family: monospace; line-height: 1.7; margin-bottom: 0.8rem; }
+.machine-enq-link { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; color: var(--accent); text-decoration: none; padding: 0.35rem 0.8rem; border: 1px solid var(--accent); border-radius: 6px; transition: all 0.15s; }
+.machine-enq-link:hover { background: var(--accent); color: #fff; }
+@media (max-width: 768px) {
+  .machines-grid { grid-template-columns: 1fr 1fr; }
+  .machine-item:nth-child(3n) { border-right: 1px solid var(--border); }
+  .machine-item:nth-child(2n) { border-right: none; }
+}
+@media (max-width: 480px) {
+  .machines-grid { grid-template-columns: 1fr; }
+  .machine-item { border-right: none !important; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-hero">
   <div class="page-hero-inner">
-    <div class="breadcrumb"><a href="/">Home</a> / <span>Machines</span></div>
+    <div class="breadcrumb"><a href="{{ url_for('index') }}">Home</a> <span>/</span> <span style="color:var(--text);">Machines</span></div>
     <h1>FFS Machine Catalog</h1>
-    <p>Browse all Form Fill Seal machine categories — {{ categories|length }} types available.</p>
+    <p>Browse all Form Fill Seal machine categories — {{ categories|length }} types, {{ categories|sum(attribute='machines')|list|length if false else (categories|map(attribute='machines')|map('length')|sum) }} models available.</p>
   </div>
 </div>
 
@@ -38,26 +52,44 @@
   <div class="cat-row">
     <div class="cat-row-header">
       <div>
-        <div class="badge badge-orange" style="margin-bottom:0.5rem;">{{ cat.machines|length }} Models</div>
+        <div class="badge badge-orange" style="margin-bottom:0.5rem;">{{ cat.machines|length }} Model{{ 's' if cat.machines|length != 1 }}</div>
         <h2>{{ cat.name }}</h2>
         <p>{{ cat.description }}</p>
       </div>
-      <a href="{{ url_for('machine_category', slug=cat.slug) }}" class="btn btn-outline btn-sm" style="white-space:nowrap;margin-top:0.3rem;">View All →</a>
+      <div class="cat-row-actions">
+        <a href="{{ url_for('machine_category', slug=cat.slug) }}" class="btn btn-outline btn-sm">View Details →</a>
+        <a href="{{ url_for('enquiry', subject='Machine Purchase Enquiry', item=cat.name, message='I would like information about your ' ~ cat.name ~ ' range. Please share specifications and pricing.') }}"
+           class="btn btn-primary btn-sm">Get Quote</a>
+      </div>
     </div>
+
+    {% if cat.machines %}
     <div class="machines-grid">
       {% for machine in cat.machines %}
       <div class="machine-item">
         {% if machine.image %}
-        <img class="machine-item-img" src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}">
+        <img class="machine-img" src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}">
         {% else %}
-        <div class="machine-item-placeholder">⚙️</div>
+        <div class="machine-placeholder">⚙️</div>
         {% endif %}
         <div class="machine-name">{{ machine.name }}</div>
         <div class="machine-desc">{{ machine.description }}</div>
-        <div class="machine-specs">{{ machine.specs }}</div>
+        <div class="machine-specs-preview">{{ machine.specs }}</div>
+        <a class="machine-enq-link"
+           href="{{ url_for('enquiry', subject='Machine Purchase Enquiry', item=machine.name, message='I am interested in the ' ~ machine.name ~ ' (' ~ cat.name ~ '). Please share pricing, lead time, and availability.') }}">
+          ⚙️ Request Quote
+        </a>
       </div>
       {% endfor %}
     </div>
+    {% else %}
+    <div style="padding:1.5rem 2rem;color:var(--muted);font-size:0.85rem;">No machines listed yet.</div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:4rem;color:var(--muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">⚙️</div>
+    <p>No machine categories yet.</p>
   </div>
   {% endfor %}
 </main>

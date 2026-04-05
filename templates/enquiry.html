@@ -1,54 +1,130 @@
 {% extends "base.html" %}
-{% block title %}Contact & Enquiry{% endblock %}
+{% block title %}Enquiry{% endblock %}
 {% block extra_css %}
 <style>
-.enquiry-wrap { max-width: 700px; margin: 3rem auto; }
-.form-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-.form-card-header { background: linear-gradient(135deg, #eff6ff, #e0ecff); border-bottom: 1px solid var(--border); padding: 2rem; }
-.form-card-header h1 { font-family: var(--font-head); font-size: 2rem; font-weight: 800; }
-.form-card-header p { color: var(--muted); margin-top: 0.4rem; font-size: 0.9rem; }
-.form-body { padding: 2rem; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
-.form-group { margin-bottom: 1.2rem; }
-.form-group label { display: block; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; background: #f8f9fb; border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text); font-family: var(--font-body); font-size: 0.9rem; transition: border-color 0.2s; outline: none; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
-.form-group textarea { resize: vertical; min-height: 120px; }
-.form-group select option { background: #fff; }
+.enq-wrap { max-width: 760px; margin: 3rem auto; }
+.form-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.form-card-header { background: linear-gradient(135deg, #eff6ff 0%, #e0ecff 100%); border-bottom: 1px solid var(--border); padding: 2rem 2.5rem; }
+.form-card-header h1 { font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; margin-bottom: 0.3rem; }
+.form-card-header p { color: var(--muted); font-size: 0.92rem; }
+.context-banner { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem; font-size: 0.88rem; color: #15803d; }
+.context-banner strong { font-weight: 700; }
+.form-body { padding: 2rem 2.5rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.form-group { margin-bottom: 1.3rem; }
+.form-group label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.45rem; }
+.form-group label .req { color: var(--accent); margin-left: 2px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%; background: #f8f9fb; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 0.72rem 1rem; color: var(--text);
+  font-family: var(--font-body); font-size: 0.92rem;
+  transition: border-color 0.18s, box-shadow 0.18s; outline: none;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,219,0.08);
+  background: #fff;
+}
+.form-group textarea { resize: vertical; min-height: 130px; }
+.char-count { font-size: 0.72rem; color: var(--muted); text-align: right; margin-top: 0.25rem; }
+.submit-btn {
+  width: 100%; background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; padding: 0.95rem 2rem; font-family: var(--font-body);
+  font-weight: 700; font-size: 1rem; cursor: pointer;
+  transition: background 0.18s, transform 0.1s; letter-spacing: 0.02em;
+}
+.submit-btn:hover { background: var(--accent2); }
+.submit-btn:active { transform: scale(0.99); }
+.form-footer { margin-top: 1.2rem; text-align: center; font-size: 0.8rem; color: var(--muted); }
+@media (max-width: 580px) {
+  .form-row { grid-template-columns: 1fr; }
+  .form-body { padding: 1.5rem; }
+  .form-card-header { padding: 1.5rem; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <main>
-  <div class="enquiry-wrap">
+  <div class="enq-wrap">
     <div class="form-card">
       <div class="form-card-header">
         <h1>Send an Enquiry</h1>
-        <p>Fill in the form below and our team will get back to you within 24 hours.</p>
+        <p>Fill in the details below and our team will get back to you within 24 hours.</p>
       </div>
+
       <div class="form-body">
-        <form method="POST">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <div class="form-row">
-            <div class="form-group"><label>Your Name *</label><input type="text" name="name" placeholder="Full name" value="{{ prefill.get("name", "") }}" required></div>
-            <div class="form-group"><label>Email *</label><input type="email" name="email" placeholder="you@company.com" value="{{ prefill.get("email", "") }}" required></div>
+        {# Context banner — shown when arriving from a machine/spare page #}
+        {% if prefill.get('item') %}
+        <div class="context-banner">
+          <span style="font-size:1.2rem;">{% if prefill.get('subject') == 'Spare Parts Enquiry' %}🔩{% else %}⚙️{% endif %}</span>
+          <div>Enquiring about: <strong>{{ prefill.item }}</strong>
+            <a href="#" onclick="document.getElementById('item').value='';this.closest('.context-banner').remove();return false;"
+               style="margin-left:0.8rem;font-size:0.78rem;color:var(--muted);text-decoration:underline;">Clear</a>
           </div>
+        </div>
+        {% endif %}
+
+        <form method="POST" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {# Hidden item field carries the machine/spare name #}
+          <input type="hidden" name="item" id="item" value="{{ prefill.get('item', '') | e }}">
+
           <div class="form-row">
-            <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+91 9999 999999" value="{{ prefill.get("phone", "") }}"></div>
             <div class="form-group">
-              <label>Subject *</label>
+              <label>Your Name <span class="req">*</span></label>
+              <input type="text" name="name" placeholder="Full name"
+                     value="{{ prefill.get('name', '') | e }}" required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label>Email Address <span class="req">*</span></label>
+              <input type="email" name="email" placeholder="you@company.com"
+                     value="{{ prefill.get('email', '') | e }}" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" placeholder="+91 98765 43210"
+                     value="{{ prefill.get('phone', '') | e }}" autocomplete="tel">
+            </div>
+            <div class="form-group">
+              <label>Subject <span class="req">*</span></label>
               <select name="subject" required>
-                <option value="">Select subject...</option>
-                <option {% if prefill.get("subject") == "Machine Purchase Enquiry" %}selected{% endif %}>Machine Purchase Enquiry</option>
-                <option {% if prefill.get("subject") == "Spare Parts Enquiry" %}selected{% endif %}>Spare Parts Enquiry</option>
-                <option {% if prefill.get("subject") == "Technical Support" %}selected{% endif %}>Technical Support</option>
-                <option {% if prefill.get("subject") == "General Enquiry" %}selected{% endif %}>General Enquiry</option>
+                <option value="">Select subject…</option>
+                {% set subjects = [
+                  'Machine Purchase Enquiry',
+                  'Spare Parts Enquiry',
+                  'Technical Support',
+                  'General Enquiry'
+                ] %}
+                {% for s in subjects %}
+                <option value="{{ s }}"
+                  {% if prefill.get('subject') == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
-          <div class="form-group"><label>Message *</label><textarea name="message" placeholder="Describe your requirement — machine model, spare part number, quantity, etc." required>{{ prefill.get("message", "") }}</textarea></div>
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:0.85rem;font-size:1rem;">Submit Enquiry →</button>
+
+          <div class="form-group">
+            <label>Message <span class="req">*</span></label>
+            <textarea name="message" id="messageField"
+                      placeholder="Describe your requirement — model name, quantity, application, timeline, etc."
+                      required maxlength="2000"
+                      oninput="document.getElementById('charCount').textContent=this.value.length">{{ prefill.get('message', '') | e }}</textarea>
+            <div class="char-count"><span id="charCount">{{ prefill.get('message', '') | length }}</span> / 2000</div>
+          </div>
+
+          <button type="submit" class="submit-btn">Submit Enquiry →</button>
         </form>
+
+        <p class="form-footer">
+          🔒 Your details are kept confidential and used only to respond to your enquiry.
+        </p>
       </div>
     </div>
   </div>
