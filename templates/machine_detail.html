@@ -60,7 +60,7 @@
       <div class="machine-img-wrap">
         <div class="machine-badge">Model</div>
         {% if machine.image %}
-        <img src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}">
+        <img src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}" loading="lazy">
         {% else %}
         <div class="machine-placeholder">⚙️</div>
         {% endif %}

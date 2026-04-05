@@ -68,7 +68,7 @@
       {% for machine in cat.machines %}
       <div class="machine-item">
         {% if machine.image %}
-        <img class="machine-img" src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}">
+        <img class="machine-img" src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="{{ machine.name }}" loading="lazy">
         {% else %}
         <div class="machine-placeholder">⚙️</div>
         {% endif %}

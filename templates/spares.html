@@ -1,73 +1,192 @@
 {% extends "base.html" %}
 {% block title %}Spare Parts{% endblock %}
+{% block meta_desc %}Genuine OEM spare parts for all Shakthi Pack FFS machines — sealing, drive, pneumatic, electrical, cutting and more. Fast dispatch available.{% endblock %}
 {% block extra_css %}
 <style>
-.page-hero { background: #f0f5ff; border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
-.page-hero-inner { max-width: 1280px; margin: 0 auto; }
-.breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
-.breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
-.page-hero h1 { font-family: var(--font-head); font-size: 3rem; font-weight: 800; }
-.page-hero p { color: var(--muted); margin-top: 0.5rem; }
-.spare-cat-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.25s; text-decoration: none; color: var(--text); display: block; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.spare-cat-card:hover { border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(26,86,219,0.08); }
-.spare-cat-img { width: 100%; height: 160px; object-fit: cover; display: block; }
-.spare-cat-img-placeholder { width: 100%; height: 160px; background: linear-gradient(135deg,#f0fdf4,#dcfce7); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-.spare-cat-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; }
-.spare-cat-header h2 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; }
-.spare-cat-header p { color: var(--muted); font-size: 0.82rem; margin-top: 0.3rem; }
-.spare-list { padding: 0.5rem 0; }
-.spare-preview { padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.8rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
-.spare-preview:last-child { border-bottom: none; }
-.spare-preview:hover { background: var(--surface2); }
-.spare-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
-.spare-preview-name { font-size: 0.85rem; font-weight: 500; }
-.spare-preview-pn { font-size: 0.75rem; color: var(--muted); margin-left: auto; font-family: monospace; }
-.spare-cat-footer { padding: 0.8rem 1.5rem; background: #f8f9fb; display: flex; justify-content: space-between; align-items: center; }
-.spare-cat-footer span { font-size: 0.8rem; color: var(--muted); }
+.page-hero{background:linear-gradient(135deg,#f0fdf4,#dcfce7 60%,#f0fdf4);border-bottom:1px solid var(--border);padding:3rem 2rem}
+.page-hero-inner{max-width:1280px;margin:0 auto}
+.breadcrumb{display:flex;gap:.4rem;align-items:center;font-size:.8rem;color:var(--muted);margin-bottom:1rem}
+.breadcrumb a{color:var(--muted);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
+.page-hero h1{font-family:var(--font-head);font-size:3rem;font-weight:800}
+.page-hero p{color:var(--muted);margin-top:.5rem}
+
+.spares-layout{display:grid;grid-template-columns:220px 1fr;gap:2rem;align-items:start}
+
+/* Filter sidebar */
+.filter-sidebar{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:sticky;top:80px}
+.filter-sidebar-head{padding:1rem 1.2rem;border-bottom:1px solid var(--border);background:#fafbfd}
+.filter-sidebar-head h3{font-family:var(--font-head);font-size:1rem;font-weight:800;letter-spacing:.05em}
+.filter-search{padding:.7rem 1rem;border-bottom:1px solid var(--border)}
+.filter-search input{width:100%;border:1px solid var(--border);border-radius:6px;padding:.4rem .7rem;font-size:.83rem;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.filter-search input:focus{border-color:var(--green)}
+.cat-filter-list{padding:.4rem 0;max-height:360px;overflow-y:auto}
+.cat-filter-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1.2rem;font-size:.85rem;text-decoration:none;color:var(--muted);transition:all .15s;cursor:pointer;border-left:3px solid transparent}
+.cat-filter-item:hover{background:var(--surface2);color:var(--text)}
+.cat-filter-item.active{background:#f0fdf4;color:var(--green);border-left-color:var(--green);font-weight:600}
+.cat-filter-count{font-size:.72rem;background:var(--surface2);border-radius:10px;padding:.1rem .4rem}
+.cat-filter-item.active .cat-filter-count{background:#dcfce7;color:var(--green)}
+
+/* Part search bar */
+.parts-search-bar{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.parts-search-bar input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:.65rem 1rem;font-family:var(--font-body);font-size:.92rem;outline:none;transition:border-color .2s}
+.parts-search-bar input:focus{border-color:var(--green)}
+.parts-search-bar button{background:var(--green);color:#fff;border:none;border-radius:8px;padding:.65rem 1.2rem;cursor:pointer;font-weight:700;font-family:var(--font-body);transition:background .18s}
+.parts-search-bar button:hover{background:#047857}
+
+/* Spare cards */
+.spare-cat-block{margin-bottom:2rem}
+.spare-cat-label{font-family:var(--font-head);font-size:1.2rem;font-weight:800;padding-bottom:.5rem;border-bottom:2px solid var(--border);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.spare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.spare-mini-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:all .2s;display:flex;flex-direction:column}
+.spare-mini-card:hover{border-color:#6ee7b7;box-shadow:0 4px 12px rgba(5,150,105,.08);transform:translateY(-2px)}
+.spare-mini-img{width:100%;height:110px;object-fit:cover;display:block}
+.spare-mini-placeholder{width:100%;height:110px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.spare-mini-body{padding:1rem;flex:1;display:flex;flex-direction:column}
+.spare-mini-pn{font-family:monospace;font-size:.72rem;background:#eff6ff;border:1px solid #bfdbfe;padding:.18rem .45rem;border-radius:4px;color:var(--accent);font-weight:600;display:inline-block;margin-bottom:.4rem}
+.spare-mini-name{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:.3rem;line-height:1.25}
+.spare-mini-desc{color:var(--muted);font-size:.78rem;line-height:1.5;flex:1;margin-bottom:.7rem}
+.spare-mini-footer{margin-top:auto}
+.spare-enq-btn{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:7px;padding:.5rem .8rem;font-family:var(--font-body);font-weight:700;font-size:.8rem;text-decoration:none;transition:all .18s}
+.spare-enq-btn:hover{background:var(--green);color:#fff}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:2rem;flex-wrap:wrap}
+.page-btn{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;border-radius:7px;text-decoration:none;font-size:.85rem;font-weight:600;border:1.5px solid var(--border);color:var(--muted);transition:all .15s;padding:0 .5rem}
+.page-btn:hover{border-color:var(--green);color:var(--green)}
+.page-btn.active{background:var(--green);border-color:var(--green);color:#fff}
+.page-btn.disabled{opacity:.4;pointer-events:none}
+
+@media(max-width:900px){
+  .spares-layout{grid-template-columns:1fr}
+  .filter-sidebar{position:static}
+  .spare-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.spare-grid{grid-template-columns:1fr}}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-hero">
   <div class="page-hero-inner">
-    <div class="breadcrumb"><a href="/">Home</a> / <span>Spare Parts</span></div>
+    <div class="breadcrumb"><a href="{{ url_for('index') }}">Home</a> <span>/</span> <span style="color:var(--text)">Spare Parts</span></div>
     <h1>Spare Parts Catalog</h1>
-    <p>Genuine OEM spare parts for all Shakthi Pack machine models — {{ categories|length }} categories available.</p>
+    <p>Genuine OEM spare parts for all Shakthi Pack machine models — {{ all_cats|length }} categories available.</p>
   </div>
 </div>
 
 <main>
-  <div class="grid-2">
-    {% for cat in categories %}
-    <a class="spare-cat-card" href="{{ url_for('spare_category', slug=cat.slug) }}">
-      {% if cat.image %}
-      <img class="spare-cat-img" src="{{ url_for('static', filename='uploads/' + cat.image) }}" alt="{{ cat.name }}">
-      {% else %}
-      <div class="spare-cat-img-placeholder">🔩</div>
-      {% endif %}
-      <div class="spare-cat-header">
-        <div>
-          <div class="badge badge-green" style="margin-bottom:0.5rem;">{{ cat.spares|length }} Parts</div>
-          <h2>{{ cat.name }}</h2>
-          <p>{{ cat.description }}</p>
-        </div>
-        <span style="color:var(--accent);font-size:1.2rem;margin-left:1rem;">→</span>
+  <div class="spares-layout">
+
+    <!-- Sidebar filter -->
+    <aside class="filter-sidebar" aria-label="Filter by category">
+      <div class="filter-sidebar-head"><h3>Categories</h3></div>
+      <div class="filter-search">
+        <input type="text" id="catFilterInput" placeholder="Filter categories…" aria-label="Filter category list">
       </div>
-      <div class="spare-list">
-        {% for spare in cat.spares[:4] %}
-        <div class="spare-preview">
-          <div class="spare-dot"></div>
-          <span class="spare-preview-name">{{ spare.name }}</span>
-          <span class="spare-preview-pn">{{ spare.part_no }}</span>
-        </div>
+      <nav class="cat-filter-list" id="catFilterList">
+        <a class="cat-filter-item {{ 'active' if not cat_filter }}"
+           href="{{ url_for('spares') }}{{ ('?q=' ~ (query|urlencode)) if query else '' }}">
+          <span>All Parts</span>
+          <span class="cat-filter-count">{{ all_cats|sum(attribute='spares')|list|length if false else (all_cats|map(attribute='spares')|map('length')|sum) }}</span>
+        </a>
+        {% for cat in all_cats %}
+        <a class="cat-filter-item {{ 'active' if cat_filter == cat.slug }}"
+           href="{{ url_for('spares') }}?cat={{ cat.slug | urlencode }}{{ ('&q=' ~ (query|urlencode)) if query else '' }}"
+           data-name="{{ cat.name | lower | e }}">
+          <span>{{ cat.name }}</span>
+          <span class="cat-filter-count">{{ cat.spares|length }}</span>
+        </a>
         {% endfor %}
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <div>
+      <!-- Part search -->
+      <form class="parts-search-bar" method="GET" action="{{ url_for('spares') }}" role="search">
+        {% if cat_filter %}<input type="hidden" name="cat" value="{{ cat_filter | e }}">{% endif %}
+        <input type="search" name="q" value="{{ query | e }}"
+               placeholder="Search by part name or number…" aria-label="Search spare parts">
+        <button type="submit">Search</button>
+      </form>
+
+      {% if total == 0 %}
+      <div style="text-align:center;padding:3rem;color:var(--muted)">
+        <div style="font-size:3rem;margin-bottom:1rem">🔩</div>
+        <p style="font-size:1.1rem">No parts found{% if query %} for "<strong>{{ query }}</strong>"{% endif %}.</p>
+        {% if query %}<a href="{{ url_for('spares') }}{{ ('?cat=' ~ cat_filter) if cat_filter else '' }}" class="btn btn-outline" style="margin-top:1rem">Clear search</a>{% endif %}
       </div>
-      <div class="spare-cat-footer">
-        <span>{{ cat.spares|length }} parts in this category</span>
-        <span style="color:var(--accent);font-size:0.8rem;">View all →</span>
+      {% else %}
+
+      {% if total > 1 %}
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">
+        Showing {{ ((page-1)*12)+1 }}–{{ [page*12, total]|min }} of {{ total }} part{{ 's' if total!=1 }}
+      </p>
+      {% endif %}
+
+      {% for cat in categories %}
+      <div class="spare-cat-block">
+        <div class="spare-cat-label">
+          🔩 {{ cat.name }}
+          <span class="badge badge-green" style="font-size:.65rem">{{ cat.spares|length }}</span>
+        </div>
+        <div class="spare-grid">
+          {% for spare in cat.spares %}
+          <div class="spare-mini-card">
+            {% if spare.image %}
+            <img class="spare-mini-img" src="{{ url_for('static', filename='uploads/' ~ spare.image) }}" alt="{{ spare.name | e }}" loading="lazy">
+            {% else %}
+            <div class="spare-mini-placeholder">🔩</div>
+            {% endif %}
+            <div class="spare-mini-body">
+              <span class="spare-mini-pn">{{ spare.part_no }}</span>
+              <div class="spare-mini-name">{{ spare.name }}</div>
+              <div class="spare-mini-desc">{{ spare.description }}</div>
+              <div class="spare-mini-footer">
+                <a class="spare-enq-btn"
+                   href="{{ url_for('enquiry', subject='Spare Parts Enquiry', item=spare.part_no ~ ' — ' ~ spare.name, message='I need the following spare part:\n\nPart: ' ~ spare.name ~ '\nPart No: ' ~ spare.part_no ~ '\nCompatible with: ' ~ spare.compatible ~ '\n\nPlease share availability, price, and lead time.') }}">
+                  🔩 Enquire
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
-    </a>
-    {% endfor %}
+      {% endfor %}
+
+      {% if total_pages > 1 %}
+      <nav class="pagination" aria-label="Spare parts pages">
+        {% set qbase = '?' ~ (('cat=' ~ cat_filter ~ '&') if cat_filter else '') ~ (('q=' ~ (query|urlencode) ~ '&') if query else '') %}
+        <a class="page-btn {{ 'disabled' if page<=1 }}" href="{{ url_for('spares') }}{{ qbase }}page={{ page-1 }}" aria-label="Previous">‹</a>
+        {% for p in range(1, total_pages+1) %}
+          {% if p==page %}<span class="page-btn active" aria-current="page">{{ p }}</span>
+          {% elif p==1 or p==total_pages or (p>=page-2 and p<=page+2) %}
+            <a class="page-btn" href="{{ url_for('spares') }}{{ qbase }}page={{ p }}">{{ p }}</a>
+          {% elif p==page-3 or p==page+3 %}<span class="page-btn disabled">…</span>{% endif %}
+        {% endfor %}
+        <a class="page-btn {{ 'disabled' if page>=total_pages }}" href="{{ url_for('spares') }}{{ qbase }}page={{ page+1 }}" aria-label="Next">›</a>
+      </nav>
+      {% endif %}
+      {% endif %}
+    </div>
   </div>
 </main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Category sidebar live filter
+(function(){
+  var input = document.getElementById('catFilterInput');
+  var list  = document.getElementById('catFilterList');
+  if(!input || !list) return;
+  input.addEventListener('input', function(){
+    var q = this.value.toLowerCase();
+    list.querySelectorAll('a[data-name]').forEach(function(el){
+      el.style.display = (!q || el.dataset.name.includes(q)) ? '' : 'none';
+    });
+  });
+})();
+</script>
 {% endblock %}

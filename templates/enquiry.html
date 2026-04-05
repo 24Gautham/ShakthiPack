@@ -1,5 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Enquiry{% endblock %}
+{% block title %}Enquiry{% block extra_js %}
+<script>
+(function(){
+  var btn=document.getElementById('clearItemBtn');
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    var inp=document.getElementById('item');
+    if(inp) inp.value='';
+    var banner=document.querySelector('.context-banner');
+    if(banner){banner.style.transition='opacity .3s';banner.style.opacity='0';setTimeout(function(){banner.remove()},300);}
+  });
+})();
+</script>
+{% endblock %}
 {% block extra_css %}
 <style>
 .enq-wrap { max-width: 760px; margin: 3rem auto; }
@@ -45,6 +58,19 @@
   .form-card-header { padding: 1.5rem; }
 }
 </style>
+{% block extra_js %}
+<script>
+(function(){
+  var btn=document.getElementById('clearItemBtn');
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    var inp=document.getElementById('item');
+    if(inp) inp.value='';
+    var banner=document.querySelector('.context-banner');
+    if(banner){banner.style.transition='opacity .3s';banner.style.opacity='0';setTimeout(function(){banner.remove()},300);}
+  });
+})();
+</script>
 {% endblock %}
 
 {% block content %}
@@ -62,8 +88,8 @@
         <div class="context-banner">
           <span style="font-size:1.2rem;">{% if prefill.get('subject') == 'Spare Parts Enquiry' %}🔩{% else %}⚙️{% endif %}</span>
           <div>Enquiring about: <strong>{{ prefill.item }}</strong>
-            <a href="#" onclick="document.getElementById('item').value='';this.closest('.context-banner').remove();return false;"
-               style="margin-left:0.8rem;font-size:0.78rem;color:var(--muted);text-decoration:underline;">Clear</a>
+            <button type="button" id="clearItemBtn"
+               style="margin-left:0.8rem;font-size:0.78rem;color:var(--muted);text-decoration:underline;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;">Clear</button>
           </div>
         </div>
         {% endif %}
@@ -129,4 +155,17 @@
     </div>
   </div>
 </main>
+{% block extra_js %}
+<script>
+(function(){
+  var btn=document.getElementById('clearItemBtn');
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    var inp=document.getElementById('item');
+    if(inp) inp.value='';
+    var banner=document.querySelector('.context-banner');
+    if(banner){banner.style.transition='opacity .3s';banner.style.opacity='0';setTimeout(function(){banner.remove()},300);}
+  });
+})();
+</script>
 {% endblock %}

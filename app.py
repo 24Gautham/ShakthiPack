@@ -101,21 +101,39 @@ def save_image(field: str) -> str:
     f = request.files.get(field)
     if not (f and f.filename and _allowed(f.filename)):
         return ""
-    # Content-length guard
+    # Size guard
     f.stream.seek(0, 2)
     size = f.stream.tell()
     f.stream.seek(0)
     if size > MAX_IMG_SIZE:
         flash("Image too large (max 4 MB per image).", "error")
         return ""
-    # Magic-byte verification — prevents polyglot/MIME confusion attacks
+    # Magic-byte verification
     if not _verify_image(f.stream):
         flash("Invalid image file.", "error")
         return ""
-    ext      = secure_filename(f.filename).rsplit(".", 1)[1].lower()
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    f.save(os.path.join(UPLOAD_FOLDER, filename))
-    return filename
+    # Convert & optimize to WebP for smaller file size and faster loads
+    try:
+        from PIL import Image as PILImage
+        f.stream.seek(0)
+        img = PILImage.open(f.stream)
+        img = img.convert("RGBA" if img.mode in ("RGBA","P") else "RGB")
+        # Cap dimensions at 1200px on longest side
+        max_dim = 1200
+        if max(img.size) > max_dim:
+            img.thumbnail((max_dim, max_dim), PILImage.LANCZOS)
+        filename = f"{uuid.uuid4().hex}.webp"
+        out_path = os.path.join(UPLOAD_FOLDER, filename)
+        img.save(out_path, "WEBP", quality=82, method=4)
+        return filename
+    except Exception as e:
+        logger.warning("Image optimization failed, saving original: %s", e,
+                       extra={"request_id": _rid()})
+        f.stream.seek(0)
+        ext      = secure_filename(f.filename).rsplit(".", 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        f.save(os.path.join(UPLOAD_FOLDER, filename))
+        return filename
 
 def delete_image(filename: str):
     if filename:
@@ -450,18 +468,46 @@ def machine_category(slug):
 @app.route("/spares")
 def spares():
     data  = load_data()
-    q     = sanitize(request.args.get("q", ""), 100).lower()
-    categories = data["spare_categories"]
-    if q:
-        filtered = []
-        for cat in categories:
-            matched = [s for s in cat["spares"]
-                       if q in s["name"].lower() or q in s["part_no"].lower()
-                       or q in s["description"].lower() or q in s.get("compatible","").lower()]
-            if matched:
-                filtered.append({**cat, "spares": matched})
-        categories = filtered
-    return render_template("spares.html", categories=categories, query=q)
+    q     = sanitize(request.args.get("q",""), 100).lower()
+    cat_filter = sanitize(request.args.get("cat",""), 80)   # filter by category slug
+    page  = max(1, int(request.args.get("page","1") or 1))
+    SPARES_PER_PAGE = 12
+
+    all_cats = data["spare_categories"]
+
+    # Collect all matching spares flat list for pagination
+    all_spares = []
+    for cat in all_cats:
+        if cat_filter and cat["slug"] != cat_filter:
+            continue
+        for s in cat["spares"]:
+            if not q or (q in s["name"].lower() or q in s["part_no"].lower()
+                         or q in s["description"].lower() or q in s.get("compatible","").lower()):
+                all_spares.append({**s, "cat_name": cat["name"], "cat_slug": cat["slug"]})
+
+    total = len(all_spares)
+    total_pages = max(1, (total + SPARES_PER_PAGE - 1) // SPARES_PER_PAGE)
+    page = min(page, total_pages)
+    page_spares = all_spares[(page-1)*SPARES_PER_PAGE : page*SPARES_PER_PAGE]
+
+    # Re-group paged spares by category for display
+    grouped = {}
+    for s in page_spares:
+        slug = s["cat_slug"]
+        if slug not in grouped:
+            cat_obj = next((c for c in all_cats if c["slug"]==slug), {})
+            grouped[slug] = {**cat_obj, "spares": []}
+        grouped[slug]["spares"].append(s)
+    categories = list(grouped.values())
+
+    return render_template("spares.html",
+                           categories=categories,
+                           all_cats=all_cats,
+                           query=q,
+                           cat_filter=cat_filter,
+                           page=page,
+                           total_pages=total_pages,
+                           total=total)
 
 @app.route("/spares/<slug>")
 def spare_category(slug):
@@ -472,21 +518,119 @@ def spare_category(slug):
         abort(404)
     return render_template("spare_detail.html", category=cat)
 
+# ── SEARCH HELPERS ────────────────────────────────────────────
+
+def _score_machine(m, cat, q):
+    """Return relevance score: higher = better match."""
+    n = m["name"].lower()
+    score = 0
+    if q == n:               score += 100
+    if n.startswith(q):      score += 60
+    if q in n:               score += 40
+    if q in m["description"].lower(): score += 20
+    if q in m.get("specs","").lower(): score += 10
+    return score
+
+def _score_spare(s, cat, q):
+    n  = s["name"].lower()
+    pn = s["part_no"].lower()
+    score = 0
+    if q == pn:              score += 120   # exact part-no match is top priority
+    if pn.startswith(q):     score += 80
+    if q in pn:              score += 50
+    if q == n:               score += 100
+    if n.startswith(q):      score += 60
+    if q in n:               score += 40
+    if q in s["description"].lower():  score += 20
+    if q in s.get("compatible","").lower(): score += 10
+    return score
+
+def _do_search(q, data):
+    """Return (machines, spares) sorted by relevance score."""
+    machines_results, spares_results = [], []
+    for cat in data["machine_categories"]:
+        for m in cat["machines"]:
+            sc = _score_machine(m, cat, q)
+            if sc > 0:
+                machines_results.append({**m, "category": cat["name"], "cat_slug": cat["slug"], "_score": sc})
+    for cat in data["spare_categories"]:
+        for s in cat["spares"]:
+            sc = _score_spare(s, cat, q)
+            if sc > 0:
+                spares_results.append({**s, "category": cat["name"], "cat_slug": cat["slug"], "_score": sc})
+    machines_results.sort(key=lambda x: -x["_score"])
+    spares_results.sort(key=lambda x: -x["_score"])
+    return machines_results, spares_results
+
+# Autocomplete JSON API — returns top suggestions as user types
+@app.route("/api/search-suggest")
+def search_suggest():
+    q = sanitize(request.args.get("q",""), 60).lower().strip()
+    if len(q) < 2:
+        return jsonify([])
+    data = load_data()
+    suggestions = []
+    seen = set()
+    for cat in data["machine_categories"]:
+        for m in cat["machines"]:
+            if q in m["name"].lower() or q in m.get("specs","").lower():
+                key = ("machine", m["name"])
+                if key not in seen:
+                    seen.add(key)
+                    suggestions.append({"type":"machine","label":m["name"],
+                                        "sub": cat["name"],"icon":"⚙️"})
+    for cat in data["spare_categories"]:
+        for s in cat["spares"]:
+            if q in s["name"].lower() or q in s["part_no"].lower():
+                key = ("spare", s["part_no"])
+                if key not in seen:
+                    seen.add(key)
+                    suggestions.append({"type":"spare","label":s["name"],
+                                        "sub": s["part_no"],"icon":"🔩"})
+    suggestions = sorted(suggestions, key=lambda x: (
+        0 if x["label"].lower().startswith(q) else 1
+    ))[:8]
+    resp = jsonify(suggestions)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+RESULTS_PER_PAGE = 10
+
 @app.route("/search")
 def search():
-    q    = sanitize(request.args.get("q", ""), 100).lower()
-    data = load_data()
+    q      = sanitize(request.args.get("q",""), 100).lower()
+    filter_type = request.args.get("type","all")   # all | machine | spare
+    page   = max(1, int(request.args.get("page","1") or 1))
+    data   = load_data()
+
     machines_results, spares_results = [], []
     if q:
-        for cat in data["machine_categories"]:
-            for m in cat["machines"]:
-                if q in m["name"].lower() or q in m["description"].lower() or q in m.get("specs","").lower():
-                    machines_results.append({**m, "category": cat["name"], "cat_slug": cat["slug"]})
-        for cat in data["spare_categories"]:
-            for s in cat["spares"]:
-                if q in s["name"].lower() or q in s["part_no"].lower() or q in s["description"].lower() or q in s.get("compatible","").lower():
-                    spares_results.append({**s, "category": cat["name"], "cat_slug": cat["slug"]})
-    return render_template("search.html", query=q, machines=machines_results, spares=spares_results)
+        machines_results, spares_results = _do_search(q, data)
+
+    # Filter
+    if filter_type == "machine": spares_results = []
+    if filter_type == "spare":   machines_results = []
+
+    # Pagination — unified across both types
+    all_results  = [("machine", r) for r in machines_results] + [("spare", r) for r in spares_results]
+    total        = len(all_results)
+    total_pages  = max(1, (total + RESULTS_PER_PAGE - 1) // RESULTS_PER_PAGE)
+    page         = min(page, total_pages)
+    page_results = all_results[(page-1)*RESULTS_PER_PAGE : page*RESULTS_PER_PAGE]
+    page_machines = [r for t,r in page_results if t=="machine"]
+    page_spares   = [r for t,r in page_results if t=="spare"]
+
+    return render_template("search.html",
+                           query=q,
+                           filter_type=filter_type,
+                           machines=page_machines,
+                           spares=page_spares,
+                           total=total,
+                           total_machines=len(machines_results),
+                           total_spares=len(spares_results),
+                           page=page,
+                           total_pages=total_pages,
+                           per_page=RESULTS_PER_PAGE)
 
 @app.route("/enquiry", methods=["GET", "POST"])
 @csrf_protected
