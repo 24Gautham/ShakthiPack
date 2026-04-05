@@ -3,108 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="{% block meta_desc %}Shakthi Pack Machineries — Manufacturer of Vertical, Horizontal, Rotary and Multi-Lane Form Fill Seal packaging machines and genuine spare parts for food, pharma and FMCG industries.{% endblock %}">
 <title>{% block title %}Packaging Machines{% endblock %} — Shakthi Pack Machineries</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231a56db'/><text y='24' x='5' font-size='22' font-family='sans-serif' font-weight='bold' fill='white'>S</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #ffffff;
-  --surface: #f8f9fb;
-  --surface2: #eef0f4;
-  --border: #dde1e8;
-  --accent: #1a56db;
-  --accent2: #1242b0;
-  --text: #1a1d26;
-  --muted: #5f6577;
-  --green: #059669;
-  --red: #dc2626;
-  --font-head: 'Barlow Condensed', sans-serif;
-  --font-body: 'Barlow', sans-serif;
+  --bg:#ffffff; --surface:#f8f9fb; --surface2:#eef0f4; --border:#dde1e8;
+  --accent:#1a56db; --accent2:#1242b0; --text:#1a1d26; --muted:#5f6577;
+  --green:#059669; --red:#dc2626;
+  --font-head:'Barlow Condensed',sans-serif; --font-body:'Barlow',sans-serif;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-weight: 400; line-height: 1.6; min-height: 100vh; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-weight:400;line-height:1.6;min-height:100vh}
 
-/* ── NAV ── */
-nav { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.nav-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; }
-.logo { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.05em; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-.logo span { color: var(--accent); }
-.nav-links { display: flex; gap: 0.25rem; }
-.nav-links a { color: var(--muted); text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; font-size: 0.9rem; letter-spacing: 0.02em; transition: all 0.2s; }
-.nav-links a:hover, .nav-links a.active { background: var(--surface2); color: var(--text); }
-.nav-cta { background: var(--accent); color: #fff !important; font-weight: 700 !important; border-radius: 6px; }
-.nav-cta:hover { background: var(--accent2) !important; color: #fff !important; }
-
-/* ── MOBILE NAV ── */
-.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
-.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-.hamburger.open span:nth-child(2) { opacity: 0; }
-.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-@media (max-width: 768px) {
-  .hamburger { display: flex; }
-  .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); flex-direction: column; gap: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 99; }
-  .nav-links.open { display: flex; }
-  .nav-links a { padding: 0.9rem 2rem; border-radius: 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-  .nav-inner form { display: none !important; }
+/* NAV */
+nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;gap:1rem}
+.logo{font-family:var(--font-head);font-size:1.5rem;font-weight:800;letter-spacing:.05em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:.4rem;white-space:nowrap}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:.25rem;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;padding:.5rem 1rem;border-radius:6px;font-weight:500;font-size:.9rem;letter-spacing:.02em;transition:all .2s;white-space:nowrap}
+.nav-links a:hover,.nav-links a.active{background:var(--surface2);color:var(--text)}
+.nav-cta{background:var(--accent);color:#fff !important;font-weight:700 !important;border-radius:6px}
+.nav-cta:hover{background:var(--accent2) !important;color:#fff !important}
+.nav-search{display:flex;align-items:center;gap:.3rem;margin-left:.5rem}
+.nav-search input{border:1px solid var(--border);border-radius:6px;padding:.35rem .7rem;font-size:.85rem;outline:none;width:160px;font-family:var(--font-body);transition:border-color .2s}
+.nav-search input:focus{border-color:var(--accent)}
+.nav-search button{background:none;border:none;cursor:pointer;font-size:1rem;padding:.3rem;line-height:1}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;background:#fff;border-bottom:1px solid var(--border);flex-direction:column;gap:0;box-shadow:0 4px 12px rgba(0,0,0,.08);z-index:99}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:.9rem 2rem;border-radius:0;border-bottom:1px solid var(--border);font-size:.95rem}
+  .nav-search{display:none !important}
 }
 
+/* FLASH */
+.flash-wrap{max-width:1280px;margin:1rem auto;padding:0 2rem}
+.flash{padding:.8rem 1.2rem;border-radius:8px;font-size:.9rem;border-left:4px solid;display:flex;align-items:center;justify-content:space-between;gap:1rem;animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.flash.success{background:#ecfdf5;border-color:var(--green);color:#065f46}
+.flash.error{background:#fef2f2;border-color:var(--red);color:#991b1b}
+.flash-close{background:none;border:none;cursor:pointer;font-size:1.1rem;line-height:1;opacity:.6;padding:0;color:inherit}
+.flash-close:hover{opacity:1}
 
-/* ── FLASH ── */
-.flash-wrap { max-width: 1280px; margin: 1rem auto; padding: 0 2rem; }
-.flash { padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.9rem; border-left: 4px solid; }
-.flash.success { background: #ecfdf5; border-color: var(--green); color: var(--green); }
-.flash.error { background: #fef2f2; border-color: var(--red); color: var(--red); }
+/* MAIN */
+main{max-width:1280px;margin:0 auto;padding:2rem}
 
-/* ── MAIN ── */
-main { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+/* FOOTER */
+footer{background:#1e293b;border-top:1px solid var(--border);margin-top:4rem;padding:3rem 2rem 2rem;color:#cbd5e1}
+.footer-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem}
+.footer-brand h3{font-family:var(--font-head);font-size:1.3rem;font-weight:800;letter-spacing:.05em;margin-bottom:.8rem;color:#fff}
+.footer-brand h3 span{color:#60a5fa}
+.footer-brand p{color:#94a3b8;font-size:.875rem;line-height:1.7}
+.footer-col h4{font-family:var(--font-head);font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:1rem}
+.footer-col a{display:block;color:#94a3b8;text-decoration:none;font-size:.875rem;padding:.2rem 0;transition:color .2s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{max-width:1280px;margin:2rem auto 0;padding-top:1.5rem;border-top:1px solid #334155;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.footer-bottom p{color:#64748b;font-size:.8rem}
 
-/* ── FOOTER ── */
-footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4rem; padding: 3rem 2rem 2rem; color: #cbd5e1; }
-.footer-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; }
-.footer-brand h3 { font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 0.8rem; color: #fff; }
-.footer-brand h3 span { color: #60a5fa; }
-.footer-brand p { color: #94a3b8; font-size: 0.875rem; line-height: 1.7; }
-.footer-col h4 { font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #60a5fa; margin-bottom: 1rem; }
-.footer-col a { display: block; color: #94a3b8; text-decoration: none; font-size: 0.875rem; padding: 0.2rem 0; transition: color 0.2s; }
-.footer-col a:hover { color: #fff; }
-.footer-bottom { max-width: 1280px; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-.footer-bottom p { color: #64748b; font-size: 0.8rem; }
-
-/* ── UTILITIES ── */
-.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-.badge-orange { background: #eff6ff; color: var(--accent); border: 1px solid #bfdbfe; }
-.badge-green { background: #ecfdf5; color: var(--green); border: 1px solid #a7f3d0; }
-.btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.4rem; border-radius: 7px; font-weight: 600; font-size: 0.9rem; text-decoration: none; cursor: pointer; border: none; font-family: var(--font-body); transition: all 0.2s; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent2); }
-.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
-.btn-outline:hover { background: var(--surface2); border-color: var(--muted); }
-.btn-danger { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; }
-.btn-danger:hover { background: #fee2e2; }
-.btn-sm { padding: 0.35rem 0.9rem; font-size: 0.8rem; }
-.section-header { margin-bottom: 2.5rem; }
-.section-header h1 { font-family: var(--font-head); font-size: 2.8rem; font-weight: 800; letter-spacing: 0.02em; line-height: 1.1; }
-.section-header p { color: var(--muted); margin-top: 0.6rem; font-size: 1.05rem; }
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-.card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
-.card:hover { border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(26,86,219,0.08); }
-.card-body { padding: 1.5rem; }
-.card-title { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
-.card-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
-.tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 0.15rem 0.55rem; font-size: 0.75rem; color: var(--muted); display: inline-block; }
-@media (max-width: 768px) {
-  .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
-  .nav-links a { padding: 0.4rem 0.6rem; font-size: 0.82rem; }
+/* UTILITIES */
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.badge-orange{background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe}
+.badge-green{background:#ecfdf5;color:var(--green);border:1px solid #a7f3d0}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border-radius:7px;font-weight:600;font-size:.9rem;text-decoration:none;cursor:pointer;border:none;font-family:var(--font-body);transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--surface2);border-color:var(--muted)}
+.btn-danger{background:#fef2f2;color:var(--red);border:1px solid #fecaca}
+.btn-danger:hover{background:#fee2e2}
+.btn-sm{padding:.35rem .9rem;font-size:.8rem}
+.section-header{margin-bottom:2.5rem}
+.section-header h1{font-family:var(--font-head);font-size:2.8rem;font-weight:800;letter-spacing:.02em;line-height:1.1}
+.section-header p{color:var(--muted);margin-top:.6rem;font-size:1.05rem}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .2s}
+.card:hover{border-color:#93c5fd;transform:translateY(-2px);box-shadow:0 4px 12px rgba(26,86,219,.08)}
+.card-body{padding:1.5rem}
+.card-title{font-family:var(--font-head);font-size:1.3rem;font-weight:700;margin-bottom:.5rem}
+.card-desc{color:var(--muted);font-size:.88rem;line-height:1.6}
+.tag{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:.15rem .55rem;font-size:.75rem;color:var(--muted);display:inline-block}
+@media(max-width:768px){
+  .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr;gap:2rem}
 }
-@media (max-width: 480px) {
-  .grid-3, .grid-4, .grid-2 { grid-template-columns: 1fr; }
-}
+@media(max-width:480px){.grid-3,.grid-4,.grid-2{grid-template-columns:1fr}}
 </style>
 {% block extra_css %}{% endblock %}
 </head>
@@ -112,26 +107,32 @@ footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4
 <nav>
   <div class="nav-inner">
     <a class="logo" href="{{ url_for('index') }}">Shakthi<span>Pack</span> Machineries</a>
-    <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="this.classList.toggle('open');document.getElementById('navLinks').classList.toggle('open')"><span></span><span></span><span></span></button>
-    <div class="nav-links" id="navLinks">
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks" role="navigation" aria-label="Main navigation">
       <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Home</a>
-      <a href="{{ url_for('machines') }}" class="{{ 'active' if 'machine' in request.endpoint }}">Machines</a>
-      <a href="{{ url_for('spares') }}" class="{{ 'active' if 'spare' in request.endpoint }}">Spares</a>
+      <a href="{{ url_for('machines') }}" class="{{ 'active' if 'machine' in (request.endpoint or '') }}">Machines</a>
+      <a href="{{ url_for('spares') }}" class="{{ 'active' if 'spare' in (request.endpoint or '') }}">Spares</a>
       <a href="{{ url_for('contact') }}" class="{{ 'active' if request.endpoint == 'contact' }}">Contact</a>
       <a href="{{ url_for('enquiry') }}" class="nav-cta {{ 'active' if request.endpoint == 'enquiry' }}">Enquire</a>
     </div>
-    <form action="{{ url_for('search') }}" method="GET" style="display:flex;align-items:center;gap:0.3rem;margin-left:1rem;">
-      <input type="text" name="q" placeholder="Search…" style="border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.7rem;font-size:0.85rem;outline:none;width:160px;font-family:var(--font-body);" value="{{ request.args.get('q','') }}">
-      <button type="submit" style="background:none;border:none;cursor:pointer;font-size:1rem;padding:0.3rem;">🔍</button>
+    <form class="nav-search" action="{{ url_for('search') }}" method="GET" role="search">
+      <label for="navSearch" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Search</label>
+      <input id="navSearch" type="search" name="q" placeholder="Search…" aria-label="Search machines and spares" value="{{ request.args.get('q','') | e }}">
+      <button type="submit" aria-label="Submit search">🔍</button>
     </form>
   </div>
 </nav>
 
 {% with messages = get_flashed_messages(with_categories=True) %}
   {% if messages %}
-  <div class="flash-wrap">
+  <div class="flash-wrap" role="alert" aria-live="polite">
     {% for cat, msg in messages %}
-    <div class="flash {{ cat }}">{{ msg }}</div>
+    <div class="flash {{ cat }}">
+      <span>{{ msg }}</span>
+      <button class="flash-close" aria-label="Dismiss message">×</button>
+    </div>
     {% endfor %}
   </div>
   {% endif %}
@@ -144,6 +145,8 @@ footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4
     <div class="footer-brand">
       <h3>Shakthi<span>Pack</span> Machineries</h3>
       <p>Leading manufacturer of Form Fill Seal packaging machines and precision spare parts. Trusted by industries across food, pharma, and FMCG sectors.</p>
+      {% if settings.get('phone') %}<p style="margin-top:.8rem;color:#94a3b8;font-size:.85rem;">📞 <a href="tel:{{ settings.phone }}" style="color:#60a5fa;text-decoration:none;">{{ settings.phone }}</a></p>{% endif %}
+      {% if settings.get('email') %}<p style="margin-top:.3rem;color:#94a3b8;font-size:.85rem;">✉ <a href="mailto:{{ settings.email }}" style="color:#60a5fa;text-decoration:none;">{{ settings.email }}</a></p>{% endif %}
     </div>
     <div class="footer-col">
       <h4>Products</h4>
@@ -154,14 +157,47 @@ footer { background: #1e293b; border-top: 1px solid var(--border); margin-top: 4
     <div class="footer-col">
       <h4>Company</h4>
       <a href="{{ url_for('contact') }}">Contact Us</a>
-      <a href="{{ url_for('enquiry') }}">Get a Quote</a>
-      <a href="{{ url_for('admin_login') }}">Admin Login</a>
+      <a href="{{ url_for('enquiry') }}">Send Enquiry</a>
+      <a href="{{ url_for('admin_login') }}">Admin</a>
     </div>
   </div>
   <div class="footer-bottom">
     <p>© {{ current_year() }} Shakthi Pack Machineries. All rights reserved.</p>
-    <p>Packaging Machine Specialists</p>
+    <p>Packaging Machine Specialists — Chennai, India</p>
   </div>
 </footer>
+
+<script>
+// Hamburger menu (no inline onclick — CSP-safe)
+(function(){
+  var btn = document.getElementById('hamburger');
+  var nav = document.getElementById('navLinks');
+  if(!btn || !nav) return;
+  btn.addEventListener('click', function(){
+    var open = nav.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  // Close on outside click
+  document.addEventListener('click', function(e){
+    if(!btn.contains(e.target) && !nav.contains(e.target)){
+      nav.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded','false');
+    }
+  });
+})();
+
+// Flash message dismiss + auto-dismiss after 6s
+(function(){
+  function dismiss(el){ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(function(){el.remove()},300); }
+  document.querySelectorAll('.flash').forEach(function(el){
+    var btn = el.querySelector('.flash-close');
+    if(btn) btn.addEventListener('click', function(){ dismiss(el); });
+    setTimeout(function(){ dismiss(el); }, 6000);
+  });
+})();
+</script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

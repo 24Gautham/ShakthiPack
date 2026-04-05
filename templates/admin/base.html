@@ -135,7 +135,10 @@ tr:hover td { background: #f8f9fb; }
 
   <div class="sidebar-footer">
     <a href="{{ url_for('index') }}">← View Website</a>
-    <a href="{{ url_for('admin_logout') }}" style="margin-top:0.3rem;">🚪 Logout</a>
+    <form method="POST" action="{{ url_for('admin_logout') }}" style="margin-top:.3rem;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:.6rem;color:#94a3b8;font-size:.82rem;padding:.5rem .6rem;border-radius:6px;width:100%;transition:all .15s;font-family:var(--font-body);" onmouseover="this.style.color='#fca5a5';this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.color='#94a3b8';this.style.background='none'">🚪 Logout</button>
+    </form>
   </div>
 </aside>
 
@@ -145,7 +148,10 @@ tr:hover td { background: #f8f9fb; }
     <div class="admin-topbar-right">
       <span style="font-size:0.8rem;color:var(--muted);">Admin</span>
       <div style="width:32px;height:32px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#1a56db;">A</div>
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-danger btn-sm" style="margin-left:0.5rem;">⏻ Logout</a>
+      <form method="POST" action="{{ url_for('admin_logout') }}" style="display:inline;margin-left:.5rem;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger btn-sm">⏻ Logout</button>
+    </form>
     </div>
   </div>
 
@@ -162,5 +168,19 @@ tr:hover td { background: #f8f9fb; }
   </div>
 </div>
 
+<script>
+(function(){
+  function dismiss(el){el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(function(){el.remove()},300);}
+  document.querySelectorAll('.flash').forEach(function(el){
+    var close = document.createElement('button');
+    close.innerHTML='×'; close.className='flash-close-btn';
+    close.style.cssText='background:none;border:none;cursor:pointer;font-size:1.1rem;margin-left:auto;opacity:.6;padding:0;color:inherit;line-height:1;';
+    close.addEventListener('click',function(){dismiss(el);});
+    el.style.display='flex'; el.style.alignItems='center'; el.style.justifyContent='space-between'; el.style.gap='1rem';
+    el.appendChild(close);
+    setTimeout(function(){dismiss(el);},6000);
+  });
+})();
+</script>
 </body>
 </html>
