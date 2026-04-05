@@ -75,7 +75,7 @@
             {% endif %}
           </td>
           <td style="font-size:0.82rem;">
-            <a href="mailto:{{ enq.email }}" style="color:var(--accent);">{{ enq.email }}</a>
+            <a href="mailto:{{ enq.email | e }}" style="color:var(--accent);">{{ enq.email }}</a>
             {% if enq.phone %}<br><span style="color:var(--muted);">{{ enq.phone }}</span>{% endif %}
           </td>
           <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap;">{{ enq.timestamp }}</td>

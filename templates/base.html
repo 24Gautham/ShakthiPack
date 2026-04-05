@@ -145,8 +145,8 @@ footer{background:#1e293b;border-top:1px solid var(--border);margin-top:4rem;pad
     <div class="footer-brand">
       <h3>Shakthi<span>Pack</span> Machineries</h3>
       <p>Leading manufacturer of Form Fill Seal packaging machines and precision spare parts. Trusted by industries across food, pharma, and FMCG sectors.</p>
-      {% if settings.get('phone') %}<p style="margin-top:.8rem;color:#94a3b8;font-size:.85rem;">📞 <a href="tel:{{ settings.phone }}" style="color:#60a5fa;text-decoration:none;">{{ settings.phone }}</a></p>{% endif %}
-      {% if settings.get('email') %}<p style="margin-top:.3rem;color:#94a3b8;font-size:.85rem;">✉ <a href="mailto:{{ settings.email }}" style="color:#60a5fa;text-decoration:none;">{{ settings.email }}</a></p>{% endif %}
+      {% if settings.get('phone') %}<p style="margin-top:.8rem;color:#94a3b8;font-size:.85rem;">📞 <a href="tel:{{ settings.phone | e }}" style="color:#60a5fa;text-decoration:none;">{{ settings.phone }}</a></p>{% endif %}
+      {% if settings.get('email') %}<p style="margin-top:.3rem;color:#94a3b8;font-size:.85rem;">✉ <a href="mailto:{{ settings.email | e }}" style="color:#60a5fa;text-decoration:none;">{{ settings.email }}</a></p>{% endif %}
     </div>
     <div class="footer-col">
       <h4>Products</h4>

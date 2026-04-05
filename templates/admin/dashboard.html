@@ -39,7 +39,7 @@
           <td>{% if not enq.get('read') %}<span class="badge badge-orange">New</span>{% else %}<span style="color:var(--muted);font-size:0.72rem;">Read</span>{% endif %}</td>
           <td><strong>{{ enq.name }}</strong></td>
           <td style="font-size:0.85rem;">{{ enq.subject }}</td>
-          <td style="font-size:0.82rem;"><a href="mailto:{{ enq.email }}" style="color:var(--accent);">{{ enq.email }}</a></td>
+          <td style="font-size:0.82rem;"><a href="mailto:{{ enq.email | e }}" style="color:var(--accent);">{{ enq.email }}</a></td>
           <td style="font-size:0.75rem;color:var(--muted);white-space:nowrap;">{{ enq.timestamp }}</td>
         </tr>
         {% endfor %}

@@ -4,8 +4,8 @@ Production-ready build.
 """
 
 from flask import (Flask, render_template, request, redirect, url_for,
-                   session, flash, jsonify, abort, make_response)
-import json, os, hashlib, uuid, re, time, logging, io, csv
+                   session, flash, jsonify, abort, make_response, g)
+import json, os, hashlib, uuid, re, time, logging, io, csv, hmac as _hmac
 from functools import wraps
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
@@ -26,13 +26,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger("shakthipack")
 
-# Inject request_id into every log record
+# Inject request_id into every log record via flask.g (thread-safe)
 class RequestIdFilter(logging.Filter):
     def filter(self, record):
-        record.request_id = getattr(request_ctx, "request_id", "-") if request_ctx else "-"
+        try:
+            record.request_id = g.get("request_id", "-")
+        except RuntimeError:   # outside app context
+            record.request_id = "-"
         return True
 
-request_ctx = None  # set per-request below
 logger.addFilter(RequestIdFilter())
 
 # ── APP ────────────────────────────────────────────────────────
@@ -59,21 +61,24 @@ app.config.update(
 
 @app.before_request
 def _before():
-    global request_ctx
-    request_ctx = request
-    rid = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:12]
-    request._request_id = rid   # attach to request object
+    # Strip all non-alphanumeric chars from client-supplied ID to prevent log injection
+    raw_rid = request.headers.get("X-Request-ID", "")
+    rid = re.sub(r"[^a-zA-Z0-9_-]", "", raw_rid)[:32] or uuid.uuid4().hex[:12]
+    g.request_id = rid   # flask.g is thread/greenlet-local — safe with threaded workers   # attach to request object
 
 @app.after_request
 def _after(resp):
-    rid = getattr(request, "_request_id", "-")
+    rid = _rid()
     resp.headers["X-Request-ID"] = rid
     # Suppress Flask/Werkzeug Server header
     resp.headers["Server"] = "ShakthiPack"
     return resp
 
-def _rid():
-    return getattr(request, "_request_id", "-")
+def _rid() -> str:
+    try:
+        return g.get("request_id", "-")
+    except RuntimeError:
+        return "-"
 
 # ── UPLOADS ────────────────────────────────────────────────────
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
@@ -259,6 +264,19 @@ def hash_password(pw: str) -> str:
     salt = os.environ.get("FFS_SALT", "shakthipack_change_this_salt_in_production")
     return hashlib.pbkdf2_hmac("sha256", pw.encode(), salt.encode(), 260_000).hex()
 
+# ── CLIENT IP (proxy-aware) ──────────────────────────────────
+_TRUSTED_PROXIES = set(filter(None, os.environ.get("TRUSTED_PROXIES", "").split(",")))
+
+def _client_ip() -> str:
+    """Return real client IP, respecting X-Forwarded-For only from trusted proxies."""
+    peer = request.remote_addr or ""
+    if peer in _TRUSTED_PROXIES or os.environ.get("TRUST_PROXY", "0") == "1":
+        forwarded = request.headers.get("X-Forwarded-For", "")
+        if forwarded:
+            # Rightmost IP added by trusted proxy is the real client
+            return forwarded.split(",")[-1].strip()
+    return peer
+
 # Brute-force rate limiting (in-memory per IP)
 _login_attempts: dict = {}
 MAX_LOGIN_ATTEMPTS = 10
@@ -289,7 +307,8 @@ def _csrf_token() -> str:
 
 def _validate_csrf():
     token = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token", "")
-    if not token or token != session.get("csrf_token"):
+    stored_tok = session.get("csrf_token", "")
+    if not token or not stored_tok or not _hmac.compare_digest(str(token), str(stored_tok)):
         abort(403)
 
 app.jinja_env.globals["csrf_token"]   = _csrf_token
@@ -406,7 +425,8 @@ def health():
         return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat(),
                         "request_id": _rid()}), 200
     except Exception as e:
-        return jsonify({"status": "error", "detail": str(e)}), 500
+        logger.error("Health check failed: %s", e, extra={"request_id": _rid()})
+        return jsonify({"status": "error"}), 500
 
 @app.route("/robots.txt")
 def robots():
@@ -427,15 +447,16 @@ def sitemap():
         {"loc": base + "/enquiry",  "priority": "0.8"},
         {"loc": base + "/contact",  "priority": "0.7"},
     ]
+    from xml.sax.saxutils import escape as _xmlesc
     for cat in data["machine_categories"]:
-        urls.append({"loc": f"{base}/machines/{cat['slug']}", "priority": "0.7"})
+        urls.append({"loc": f"{base}/machines/{_xmlesc(cat['slug'])}", "priority": "0.7"})
     for cat in data["spare_categories"]:
-        urls.append({"loc": f"{base}/spares/{cat['slug']}", "priority": "0.6"})
+        urls.append({"loc": f"{base}/spares/{_xmlesc(cat['slug'])}", "priority": "0.6"})
     today = datetime.utcnow().strftime("%Y-%m-%d")
     xml = ['<?xml version="1.0" encoding="UTF-8"?>',
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
-        xml.append(f"  <url><loc>{u['loc']}</loc><lastmod>{today}</lastmod>"
+        xml.append(f"  <url><loc>{_xmlesc(u['loc'])}</loc><lastmod>{today}</lastmod>"
                    f"<priority>{u['priority']}</priority></url>")
     xml.append("</urlset>")
     resp = make_response("\n".join(xml))
@@ -470,7 +491,10 @@ def spares():
     data  = load_data()
     q     = sanitize(request.args.get("q",""), 100).lower()
     cat_filter = sanitize(request.args.get("cat",""), 80)   # filter by category slug
-    page  = max(1, int(request.args.get("page","1") or 1))
+    try:
+        page = max(1, int(request.args.get("page", 1) or 1))
+    except (ValueError, TypeError):
+        page = 1
     SPARES_PER_PAGE = 12
 
     all_cats = data["spare_categories"]
@@ -599,8 +623,14 @@ RESULTS_PER_PAGE = 10
 @app.route("/search")
 def search():
     q      = sanitize(request.args.get("q",""), 100).lower()
-    filter_type = request.args.get("type","all")   # all | machine | spare
-    page   = max(1, int(request.args.get("page","1") or 1))
+    _VALID_FILTER_TYPES = {"all", "machine", "spare"}
+    filter_type = request.args.get("type", "all")
+    if filter_type not in _VALID_FILTER_TYPES:
+        filter_type = "all"
+    try:
+        page = max(1, int(request.args.get("page", 1) or 1))
+    except (ValueError, TypeError):
+        page = 1
     data   = load_data()
 
     machines_results, spares_results = [], []
@@ -637,7 +667,7 @@ def search():
 def enquiry():
     data = load_data()
     if request.method == "POST":
-        ip = request.remote_addr
+        ip = _client_ip()
         if not _check_rate_limit(_enquiry_attempts, ip, MAX_ENQUIRY, ENQUIRY_WINDOW):
             flash("Too many enquiries submitted. Please wait 10 minutes.", "error")
             return render_template("enquiry.html", prefill=request.form), 429
@@ -664,6 +694,7 @@ def enquiry():
             return render_template("enquiry.html", prefill=request.form), 422
 
         _record_hit(_enquiry_attempts, ip)
+        ip = _client_ip()
         entry = {
             "id":        str(uuid.uuid4()),
             "name":      name,
@@ -701,7 +732,7 @@ def contact():
 def admin_login():
     if session.get("admin"):
         return redirect(url_for("admin_dashboard"))
-    ip = request.remote_addr
+    ip = _client_ip()
     if not _check_rate_limit(_login_attempts, ip, MAX_LOGIN_ATTEMPTS, LOCKOUT_SECS):
         flash("Too many failed attempts. Please wait 5 minutes.", "error")
         return render_template("admin/login.html")
@@ -710,8 +741,8 @@ def admin_login():
         username = sanitize(request.form.get("username", ""), 80)
         password = request.form.get("password", "")
         stored   = data["admin"]["password"]
-        pbkdf2_ok = hash_password(password) == stored
-        sha256_ok = (hashlib.sha256(password.encode()).hexdigest() == stored
+        pbkdf2_ok = _hmac.compare_digest(hash_password(password), stored)
+        sha256_ok = (_hmac.compare_digest(hashlib.sha256(password.encode()).hexdigest(), stored)
                      and not data["admin"].get("pbkdf2"))
         if username == data["admin"]["username"] and (pbkdf2_ok or sha256_ok):
             if sha256_ok:   # upgrade legacy hash
@@ -1114,7 +1145,7 @@ def admin_export_enquiries():
     filename = f"enquiries_{datetime.utcnow().strftime('%Y%m%d_%H%M')}.csv"
     resp = make_response(buf.getvalue())
     resp.headers["Content-Type"]        = "text/csv; charset=utf-8"
-    resp.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    resp.headers["Content-Disposition"] = f'attachment; filename="{filename}"; filename*=UTF-8''{filename}'
     return resp
 
 # ── ADMIN: SETTINGS ───────────────────────────────────────────
@@ -1125,8 +1156,11 @@ def admin_export_enquiries():
 def admin_settings():
     data = load_data()
     if request.method == "POST":
-        action = request.form.get("action")
-        if action == "change_password":
+        _VALID_ACTIONS = {"change_password", "site_settings"}
+        action = request.form.get("action", "")
+        if action not in _VALID_ACTIONS:
+            flash("Invalid action.", "error")
+        elif action == "change_password":
             current  = request.form.get("current_password","")
             new_pass = request.form.get("new_password","")
             confirm  = request.form.get("confirm_password","")

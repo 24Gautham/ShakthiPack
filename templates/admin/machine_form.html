@@ -10,11 +10,11 @@
     <div class="card-body">
       <form method="POST" enctype="multipart/form-data">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="form-group"><label>Model Name</label><input type="text" name="name" value="{{ machine.name if machine else '' }}" placeholder="e.g. VFFS-200" required></div>
+        <div class="form-group"><label>Model Name</label><input type="text" name="name" value="{{ (machine.name if machine else '') | e }}" placeholder="e.g. VFFS-200" required></div>
         <div class="form-group"><label>Description</label><textarea name="description" placeholder="Short description of what this machine does...">{{ machine.description if machine else '' }}</textarea></div>
         <div class="form-group">
           <label>Technical Specs</label>
-          <input type="text" name="specs" value="{{ machine.specs if machine else '' }}" placeholder="Speed: 200 packs/min | Film width: 100–380mm | Power: 3.5kW">
+          <input type="text" name="specs" value="{{ (machine.specs if machine else '') | e }}" placeholder="Speed: 200 packs/min | Film width: 100–380mm | Power: 3.5kW">
           <small style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;display:block;">Use pipe | to separate spec items.</small>
         </div>
         <div class="form-group">

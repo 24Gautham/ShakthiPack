@@ -129,7 +129,7 @@
                   'General Enquiry'
                 ] %}
                 {% for s in subjects %}
-                <option value="{{ s }}"
+                <option value="{{ s | e }}"
                   {% if prefill.get('subject') == s %}selected{% endif %}>{{ s }}</option>
                 {% endfor %}
               </select>

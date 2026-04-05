@@ -8,12 +8,12 @@
     <div class="card-body">
       <form method="POST" enctype="multipart/form-data">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="form-group"><label>Part Name</label><input type="text" name="name" value="{{ spare.name if spare else '' }}" placeholder="e.g. Horizontal Sealing Jaw (VFFS)" required></div>
-        <div class="form-group"><label>Part Number</label><input type="text" name="part_no" value="{{ spare.part_no if spare else '' }}" placeholder="e.g. VSJ-H-001" required></div>
+        <div class="form-group"><label>Part Name</label><input type="text" name="name" value="{{ (spare.name if spare else '') | e }}" placeholder="e.g. Horizontal Sealing Jaw (VFFS)" required></div>
+        <div class="form-group"><label>Part Number</label><input type="text" name="part_no" value="{{ (spare.part_no if spare else '') | e }}" placeholder="e.g. VSJ-H-001" required></div>
         <div class="form-group"><label>Description</label><textarea name="description" placeholder="Detailed description of the spare part...">{{ spare.description if spare else '' }}</textarea></div>
         <div class="form-group">
           <label>Compatible Machine Models</label>
-          <input type="text" name="compatible" value="{{ spare.compatible if spare else '' }}" placeholder="e.g. VFFS-200, VFFS-350 Pro">
+          <input type="text" name="compatible" value="{{ (spare.compatible if spare else '') | e }}" placeholder="e.g. VFFS-200, VFFS-350 Pro">
           <small style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;display:block;">Comma-separated model names.</small>
         </div>
         <div class="form-group">

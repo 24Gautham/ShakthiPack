@@ -35,12 +35,12 @@
         </div>
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
           <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Email</div>
-          <a href="mailto:{{ enq.email }}" style="color:var(--accent);font-weight:600;">{{ enq.email }}</a>
+          <a href="mailto:{{ enq.email | e }}" style="color:var(--accent);font-weight:600;">{{ enq.email }}</a>
         </div>
         {% if enq.phone %}
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
           <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Phone</div>
-          <a href="tel:{{ enq.phone }}" style="color:var(--text);font-weight:600;">{{ enq.phone }}</a>
+          <a href="tel:{{ enq.phone | e }}" style="color:var(--text);font-weight:600;">{{ enq.phone }}</a>
         </div>
         {% endif %}
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
@@ -63,10 +63,10 @@
 
       <!-- Quick reply button -->
       <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;gap:0.8rem;align-items:center;">
-        <a href="mailto:{{ enq.email }}?subject=Re: {{ enq.subject | urlencode }}&body=Hi {{ enq.name }},%0A%0AThank you for your enquiry.%0A%0A"
+        <a href="mailto:{{ enq.email | e }}?subject=Re:%20{{ enq.subject | urlencode }}&amp;body=Hi%20{{ enq.name | urlencode }},%0A%0AThank%20you%20for%20your%20enquiry."
            class="btn btn-primary">✉ Reply via Email</a>
         {% if enq.phone %}
-        <a href="tel:{{ enq.phone }}" class="btn btn-outline">📞 Call {{ enq.phone }}</a>
+        <a href="tel:{{ enq.phone | e }}" class="btn btn-outline">📞 Call {{ enq.phone }}</a>
         {% endif %}
       </div>
     </div>
