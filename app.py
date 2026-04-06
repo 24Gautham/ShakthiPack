@@ -502,8 +502,12 @@ def machine_category(slug):
 @app.route("/spares")
 def spares():
     data  = load_data()
-    q     = sanitize(request.args.get("q",""), 100).lower()
-    cat_filter = sanitize(request.args.get("cat",""), 80)   # filter by category slug
+    q          = sanitize(request.args.get("q", ""), 100).lower()
+    cat_filter = sanitize(request.args.get("cat", ""), 80)
+    sort       = request.args.get("sort", "")
+    _VALID_SORTS = {"az", "za", "pn", ""}
+    if sort not in _VALID_SORTS:
+        sort = ""
     try:
         page = max(1, int(request.args.get("page", 1) or 1))
     except (ValueError, TypeError):
@@ -512,29 +516,40 @@ def spares():
 
     all_cats = data["spare_categories"]
 
-    # Collect all matching spares flat list for pagination
+    # Validate cat_filter against real slugs
+    valid_cat_slugs = {c["slug"] for c in all_cats}
+    if cat_filter and cat_filter not in valid_cat_slugs:
+        cat_filter = ""
+
+    # Build flat matched list
     all_spares = []
     for cat in all_cats:
         if cat_filter and cat["slug"] != cat_filter:
             continue
         for s in cat["spares"]:
             if not q or (q in s["name"].lower() or q in s["part_no"].lower()
-                         or q in s["description"].lower() or q in s.get("compatible","").lower()):
+                         or q in s["description"].lower()
+                         or q in s.get("compatible", "").lower()):
                 all_spares.append({**s, "cat_name": cat["name"], "cat_slug": cat["slug"]})
 
-    total = len(all_spares)
+    # Sort
+    if sort == "az":   all_spares.sort(key=lambda x: x["name"].lower())
+    elif sort == "za": all_spares.sort(key=lambda x: x["name"].lower(), reverse=True)
+    elif sort == "pn": all_spares.sort(key=lambda x: x["part_no"].lower())
+
+    total       = len(all_spares)
     total_pages = max(1, (total + SPARES_PER_PAGE - 1) // SPARES_PER_PAGE)
-    page = min(page, total_pages)
+    page        = min(page, total_pages)
     page_spares = all_spares[(page-1)*SPARES_PER_PAGE : page*SPARES_PER_PAGE]
 
-    # Re-group paged spares by category for display
+    # Re-group by category for display — ensure slug key is always "slug"
     grouped = {}
     for s in page_spares:
-        slug = s["cat_slug"]
-        if slug not in grouped:
-            cat_obj = next((c for c in all_cats if c["slug"]==slug), {})
-            grouped[slug] = {**cat_obj, "spares": []}
-        grouped[slug]["spares"].append(s)
+        cslug = s["cat_slug"]
+        if cslug not in grouped:
+            cat_obj = next((c for c in all_cats if c["slug"] == cslug), {})
+            grouped[cslug] = {**cat_obj, "slug": cslug, "spares": []}
+        grouped[cslug]["spares"].append(s)
     categories = list(grouped.values())
 
     return render_template("spares.html",
@@ -542,6 +557,7 @@ def spares():
                            all_cats=all_cats,
                            query=q,
                            cat_filter=cat_filter,
+                           sort=sort,
                            page=page,
                            total_pages=total_pages,
                            total=total)

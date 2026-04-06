@@ -2,7 +2,7 @@
 {% block title %}{{ category.name }} Spares{% endblock %}
 {% block extra_css %}
 <style>
-.page-hero { background: linear-gradient(135deg,#f0fdf4,#dcfce7 60%,#f0fdf4); border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
+.page-hero { background: linear-gradient(135deg,#f0f5ff,#e8eeff 60%,#f0f5ff); border-bottom: 1px solid var(--border); padding: 3rem 2rem; }
 .page-hero-inner { max-width: 1280px; margin: 0 auto; }
 .breadcrumb { display: flex; gap: 0.4rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
 .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
@@ -10,9 +10,9 @@
 .page-hero p { color: var(--muted); margin-top: 0.5rem; max-width: 640px; line-height: 1.7; }
 
 .spare-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.22s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-.spare-card:hover { border-color: #6ee7b7; box-shadow: 0 8px 24px rgba(5,150,105,0.09); transform: translateY(-3px); }
+.spare-card:hover { border-color: #93c5fd; box-shadow: 0 8px 24px rgba(26,86,219,0.1); transform: translateY(-3px); }
 
-.spare-img-wrap { position: relative; background: linear-gradient(135deg,#f0fdf4,#dcfce7); border-bottom: 1px solid var(--border); min-height: 170px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.spare-img-wrap { position: relative; background: linear-gradient(135deg,#eff6ff,#e0ecff); border-bottom: 1px solid var(--border); min-height: 170px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .spare-img-wrap img { width: 100%; height: 170px; object-fit: cover; display: block; }
 .spare-placeholder { font-size: 3rem; opacity: 0.5; }
 
@@ -27,8 +27,8 @@
 .compat-tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.18rem 0.55rem; font-size: 0.74rem; color: var(--muted); }
 
 .spare-footer { padding: 1.1rem 1.4rem; border-top: 1px solid var(--border); background: #fafbfd; }
-.enquiry-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; background: transparent; color: var(--green); border: 1.5px solid var(--green); border-radius: 8px; padding: 0.68rem 1rem; font-family: var(--font-body); font-weight: 700; font-size: 0.88rem; text-decoration: none; cursor: pointer; transition: all 0.18s; }
-.enquiry-btn:hover { background: var(--green); color: #fff; }
+.enquiry-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.68rem 1rem; font-family: var(--font-body); font-weight: 700; font-size: 0.88rem; text-decoration: none; cursor: pointer; transition: background 0.18s; }
+.enquiry-btn:hover { background: var(--accent2); }
 </style>
 {% endblock %}
 
@@ -42,7 +42,7 @@
       <span>/</span>
       <span style="color:var(--text);">{{ category.name }}</span>
     </div>
-    <div class="badge badge-green" style="margin-bottom:0.8rem;">{{ category.spares|length }} Part{{ 's' if category.spares|length != 1 }}</div>
+    <div class="badge badge-orange" style="margin-bottom:0.8rem;">{{ category.spares|length }} Part{{ 's' if category.spares|length != 1 }}</div>
     <h1>{{ category.name }}</h1>
     <p>{{ category.description }}</p>
   </div>
