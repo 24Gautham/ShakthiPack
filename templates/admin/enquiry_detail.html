@@ -17,7 +17,7 @@
           <h2 style="margin-top:0.2rem;">{{ enq.subject }}</h2>
         </div>
         <div style="display:flex;gap:0.5rem;">
-          <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}" onsubmit="return confirm('Delete this enquiry permanently?')">
+          <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}" data-confirm="Delete this enquiry permanently?">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
           </form>

@@ -16,7 +16,7 @@
     </form>
     {% if read_count > 0 %}
     <form method="POST" action="{{ url_for('admin_bulk_delete_enquiries') }}"
-          onsubmit="return confirm('Delete all {{ read_count }} read enquiries? This cannot be undone.')"
+          data-confirm="Delete all {{ read_count }} read enquiries? This cannot be undone."
           style="display:inline;">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn btn-danger btn-sm">🗑 Delete Read ({{ read_count }})</button>
@@ -88,7 +88,7 @@
             </form>
             {% endif %}
             <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}"
-                  onsubmit="return confirm('Delete this enquiry?')">
+                  data-confirm="Delete this enquiry?">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-danger btn-sm">Del</button>
             </form>

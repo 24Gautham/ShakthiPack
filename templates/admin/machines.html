@@ -23,7 +23,7 @@
     <div class="flex gap-2">
       <a href="{{ url_for('admin_add_machine', cat_id=cat.id) }}" class="btn btn-success btn-sm">+ Add Machine</a>
       <a href="{{ url_for('admin_edit_machine_category', cat_id=cat.id) }}" class="btn btn-outline btn-sm">Edit</a>
-      <form method="POST" action="{{ url_for('admin_delete_machine_category', cat_id=cat.id) }}" onsubmit="return confirm('Delete this category and ALL its machines? This cannot be undone.')">
+      <form method="POST" action="{{ url_for('admin_delete_machine_category', cat_id=cat.id) }}" data-confirm="Delete this category and ALL its machines? This cannot be undone.">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
       </form>
@@ -48,7 +48,7 @@
           <td style="max-width:220px;font-family:monospace;font-size:0.78rem;color:var(--muted);">{{ m.specs }}</td>
           <td style="display:flex;gap:0.4rem;align-items:center;">
             <a href="{{ url_for('admin_edit_machine', cat_id=cat.id, machine_id=m.id) }}" class="btn btn-outline btn-sm">Edit</a>
-            <form method="POST" action="{{ url_for('admin_delete_machine', cat_id=cat.id, machine_id=m.id) }}" onsubmit="return confirm('Delete {{ m.name }}?')">
+            <form method="POST" action="{{ url_for('admin_delete_machine', cat_id=cat.id, machine_id=m.id) }}" data-confirm="Delete {{ m.name }}?">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-danger btn-sm">Del</button>
             </form>

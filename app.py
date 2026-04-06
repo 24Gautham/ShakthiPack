@@ -338,9 +338,15 @@ def _get_unread(data: dict) -> int:
 def inject_globals():
     unread = 0
     if session.get("admin"):
-        # Use cached value from load_data (mtime-cached), not a separate disk read
         unread = session.get("_unread_cache", 0)
-    return {"unread_count": unread, "settings": load_data().get("site_settings", {})}
+    data = load_data()
+    site = dict(data.get("site_settings", {}))
+    # Inject category lists for enquiry sidebar (lightweight — just id/name/slug)
+    site["_machine_cats"] = [{"id":c["id"],"name":c["name"],"slug":c["slug"]}
+                              for c in data.get("machine_categories", [])]
+    site["_spare_cats"]   = [{"id":c["id"],"name":c["name"],"slug":c["slug"]}
+                              for c in data.get("spare_categories", [])]
+    return {"unread_count": unread, "settings": site}
 
 def _refresh_unread_cache(data: dict):
     """Call after any enquiry mutation to keep session cache fresh."""
@@ -475,7 +481,14 @@ def index():
 @app.route("/machines")
 def machines():
     data = load_data()
-    return render_template("machines.html", categories=data["machine_categories"])
+    cat_filter = sanitize(request.args.get("cat", ""), 80)
+    # Validate cat_filter against actual slugs
+    valid_slugs = {c["slug"] for c in data["machine_categories"]}
+    if cat_filter not in valid_slugs:
+        cat_filter = ""
+    return render_template("machines.html",
+                           categories=data["machine_categories"],
+                           cat_filter=cat_filter)
 
 @app.route("/machines/<slug>")
 def machine_category(slug):
@@ -670,7 +683,10 @@ def enquiry():
         ip = _client_ip()
         if not _check_rate_limit(_enquiry_attempts, ip, MAX_ENQUIRY, ENQUIRY_WINDOW):
             flash("Too many enquiries submitted. Please wait 10 minutes.", "error")
-            return render_template("enquiry.html", prefill=request.form), 429
+            data2 = load_data()
+            return render_template("enquiry.html", prefill=request.form,
+                                   machine_categories=data2["machine_categories"],
+                                   spare_categories=data2["spare_categories"]), 429
 
         name    = sanitize(request.form.get("name", ""), 120)
         email   = sanitize(request.form.get("email", ""), 254)
@@ -691,7 +707,9 @@ def enquiry():
         if errors:
             for err in errors:
                 flash(err, "error")
-            return render_template("enquiry.html", prefill=request.form), 422
+            return render_template("enquiry.html", prefill=request.form,
+                                   machine_categories=data["machine_categories"],
+                                   spare_categories=data["spare_categories"]), 422
 
         _record_hit(_enquiry_attempts, ip)
         ip = _client_ip()
@@ -719,7 +737,10 @@ def enquiry():
         "item":    sanitize(request.args.get("item", ""), 200),
         "message": sanitize(request.args.get("message", ""), 2000),
     }
-    return render_template("enquiry.html", prefill=prefill)
+    data = load_data()
+    return render_template("enquiry.html", prefill=prefill,
+                           machine_categories=data["machine_categories"],
+                           spare_categories=data["spare_categories"])
 
 @app.route("/contact")
 def contact():

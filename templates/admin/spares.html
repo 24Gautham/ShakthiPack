@@ -23,7 +23,7 @@
     <div class="flex gap-2">
       <a href="{{ url_for('admin_add_spare', cat_id=cat.id) }}" class="btn btn-success btn-sm">+ Add Part</a>
       <a href="{{ url_for('admin_edit_spare_category', cat_id=cat.id) }}" class="btn btn-outline btn-sm">Edit</a>
-      <form method="POST" action="{{ url_for('admin_delete_spare_category', cat_id=cat.id) }}" onsubmit="return confirm('Delete this category and ALL its spares? This cannot be undone.')">
+      <form method="POST" action="{{ url_for('admin_delete_spare_category', cat_id=cat.id) }}" data-confirm="Delete this category and ALL its spares? This cannot be undone.">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
       </form>
@@ -48,7 +48,7 @@
           <td style="font-size:0.8rem;color:var(--muted);max-width:180px;">{{ s.compatible }}</td>
           <td style="display:flex;gap:0.4rem;align-items:center;">
             <a href="{{ url_for('admin_edit_spare', cat_id=cat.id, spare_id=s.id) }}" class="btn btn-outline btn-sm">Edit</a>
-            <form method="POST" action="{{ url_for('admin_delete_spare', cat_id=cat.id, spare_id=s.id) }}" onsubmit="return confirm('Delete {{ s.name }}?')">
+            <form method="POST" action="{{ url_for('admin_delete_spare', cat_id=cat.id, spare_id=s.id) }}" data-confirm="Delete {{ s.name }}?">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-danger btn-sm">Del</button>
             </form>

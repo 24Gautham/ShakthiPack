@@ -40,6 +40,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid #334155; }
 .sidebar-footer a { display: flex; align-items: center; gap: 0.6rem; color: #94a3b8; text-decoration: none; font-size: 0.82rem; padding: 0.5rem 0.6rem; border-radius: 6px; transition: all 0.15s; }
 .sidebar-footer a:hover { color: #fca5a5; background: rgba(239,68,68,0.1); }
+.sidebar-logout-btn { background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:.6rem; color:#94a3b8; font-size:.82rem; padding:.5rem .6rem; border-radius:6px; width:100%; transition:all .15s; font-family:var(--font-body); }
+.sidebar-logout-btn:hover { color:#fca5a5; background:rgba(239,68,68,.1); }
 
 /* MAIN */
 .admin-main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
@@ -56,7 +58,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 /* UTILITIES */
 .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; cursor: pointer; border: none; font-family: var(--font-body); transition: all 0.15s; }
 .btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: #1242b0; }
+.btn-primary:hover { background: var(--accent2); }
 .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
 .btn-outline:hover { background: var(--surface2); border-color: var(--muted); }
 .btn-danger { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; }
@@ -137,7 +139,7 @@ tr:hover td { background: #f8f9fb; }
     <a href="{{ url_for('index') }}">← View Website</a>
     <form method="POST" action="{{ url_for('admin_logout') }}" style="margin-top:.3rem;">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:.6rem;color:#94a3b8;font-size:.82rem;padding:.5rem .6rem;border-radius:6px;width:100%;transition:all .15s;font-family:var(--font-body);" onmouseover="this.style.color='#fca5a5';this.style.background='rgba(239,68,68,.1)'" onmouseout="this.style.color='#94a3b8';this.style.background='none'">🚪 Logout</button>
+      <button type="submit" class="sidebar-logout-btn">🚪 Logout</button>
     </form>
   </div>
 </aside>
@@ -147,7 +149,7 @@ tr:hover td { background: #f8f9fb; }
     <h1>{% block page_title %}Dashboard{% endblock %}</h1>
     <div class="admin-topbar-right">
       <span style="font-size:0.8rem;color:var(--muted);">Admin</span>
-      <div style="width:32px;height:32px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#1a56db;">A</div>
+      <div style="width:32px;height:32px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:var(--accent);">A</div>
       <form method="POST" action="{{ url_for('admin_logout') }}" style="display:inline;margin-left:.5rem;">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn btn-danger btn-sm">⏻ Logout</button>
@@ -181,6 +183,13 @@ tr:hover td { background: #f8f9fb; }
     setTimeout(function(){dismiss(el);},6000);
   });
 })();
+</script>
+<script>
+document.addEventListener('submit', function(e){
+  var form = e.target;
+  var msg = form.getAttribute('data-confirm');
+  if(msg && !window.confirm(msg)){ e.preventDefault(); }
+});
 </script>
 </body>
 </html>
