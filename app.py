@@ -1101,9 +1101,76 @@ def admin_delete_spare(cat_id, spare_id):
 @app.route("/admin/enquiries")
 @login_required
 def admin_enquiries():
-    data      = load_data()
-    enquiries = sorted(data["enquiries"], key=lambda x: x["timestamp"], reverse=True)
-    return render_template("admin/enquiries.html", enquiries=enquiries)
+    from collections import defaultdict
+    data = load_data()
+    all_enq = data["enquiries"]
+
+    # ── Filters ────────────────────────────────────────────────
+    filter_year    = sanitize(request.args.get("year",  ""), 4)
+    filter_month   = sanitize(request.args.get("month", ""), 2)
+    filter_status  = request.args.get("status", "all")
+    filter_subject = sanitize(request.args.get("subject", ""), 120)
+    sort_by        = request.args.get("sort", "newest")
+
+    if filter_status not in ("all", "read", "unread"):
+        filter_status = "all"
+    if sort_by not in ("newest", "oldest", "name"):
+        sort_by = "newest"
+
+    # Validate year/month are digits only
+    if filter_year  and not filter_year.isdigit():  filter_year  = ""
+    if filter_month and not filter_month.isdigit(): filter_month = ""
+
+    def _ts(e):
+        return e.get("timestamp", "")
+
+    # Parse year/month from timestamp string "YYYY-MM-DD HH:MM UTC"
+    def _year(e):  return _ts(e)[:4]
+    def _month(e): return _ts(e)[5:7]
+
+    # Build year/month stats BEFORE filtering (for sidebar)
+    year_counts  = defaultdict(int)
+    month_counts = defaultdict(int)  # for the selected year
+    subject_counts = defaultdict(int)
+    for e in all_enq:
+        y = _year(e);  m = _month(e)
+        if y: year_counts[y] += 1
+        if filter_year == y and m: month_counts[m] += 1
+        if e.get("subject"): subject_counts[e["subject"]] += 1
+
+    # Apply filters
+    filtered = all_enq
+    if filter_year:    filtered = [e for e in filtered if _year(e)  == filter_year]
+    if filter_month:   filtered = [e for e in filtered if _month(e) == filter_month]
+    if filter_status == "read":   filtered = [e for e in filtered if e.get("read")]
+    if filter_status == "unread": filtered = [e for e in filtered if not e.get("read")]
+    if filter_subject: filtered = [e for e in filtered if e.get("subject","") == filter_subject]
+
+    # Sort
+    if sort_by == "oldest":
+        enquiries = sorted(filtered, key=_ts)
+    elif sort_by == "name":
+        enquiries = sorted(filtered, key=lambda e: e.get("name","").lower())
+    else:  # newest
+        enquiries = sorted(filtered, key=_ts, reverse=True)
+
+    # Sorted unique years for dropdown
+    all_years  = sorted(year_counts.keys(), reverse=True)
+    MONTH_NAMES = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+    return render_template("admin/enquiries.html",
+                           enquiries=enquiries,
+                           all_enq_count=len(all_enq),
+                           year_counts=dict(year_counts),
+                           month_counts=dict(month_counts),
+                           subject_counts=dict(subject_counts),
+                           all_years=all_years,
+                           month_names=MONTH_NAMES,
+                           filter_year=filter_year,
+                           filter_month=filter_month,
+                           filter_status=filter_status,
+                           filter_subject=filter_subject,
+                           sort_by=sort_by)
 
 @app.route("/admin/enquiries/<enq_id>")
 @login_required

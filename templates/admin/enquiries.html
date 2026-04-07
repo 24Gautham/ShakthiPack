@@ -1,110 +1,363 @@
 {% extends "admin/base.html" %}
 {% block title %}Enquiries{% endblock %}
 {% block page_title %}Customer Enquiries{% endblock %}
+
+{% block extra_css %}
+<style>
+.enq-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
+
+/* ── Filter sidebar ── */
+.enq-filter-sidebar {
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; position: sticky; top: 76px;
+}
+.enq-filter-head {
+  padding: .9rem 1.1rem; border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg,#eff6ff,#e0ecff);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.enq-filter-head h3 { font-family: var(--font-head); font-size: .9rem; font-weight: 800; color: var(--accent); }
+.enq-filter-section { border-bottom: 1px solid var(--border); }
+.enq-filter-section-label {
+  padding: .55rem 1.1rem .2rem;
+  font-size: .62rem; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.enq-filter-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .45rem 1.1rem; font-size: .82rem; text-decoration: none;
+  color: var(--muted); transition: all .15s; border-left: 3px solid transparent;
+}
+.enq-filter-item:hover { background: #eff6ff; color: var(--accent); }
+.enq-filter-item.active { background: #eff6ff; color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.enq-filter-count {
+  font-size: .68rem; background: var(--surface2); border-radius: 8px;
+  padding: .08rem .4rem; flex-shrink: 0;
+}
+.enq-filter-item.active .enq-filter-count { background: #bfdbfe; color: var(--accent); }
+
+/* Month sub-list */
+.month-list { padding: .2rem 0 .4rem; }
+.month-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .35rem 1.1rem .35rem 1.8rem; font-size: .79rem;
+  text-decoration: none; color: var(--muted); transition: all .15s;
+  border-left: 3px solid transparent;
+}
+.month-item:hover { background: #eff6ff; color: var(--accent); }
+.month-item.active { background: #eff6ff; color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+
+/* ── Stats cards ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: .8rem; margin-bottom: 1.2rem; }
+.stat-mini { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: .9rem 1rem; }
+.stat-mini .val { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: var(--accent); line-height: 1; }
+.stat-mini .lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .2rem; }
+.stat-mini.warn .val { color: #d97706; }
+.stat-mini.success .val { color: var(--green); }
+
+/* ── Sort / filter bar ── */
+.sort-bar {
+  display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem;
+  flex-wrap: wrap; background: #fff; border: 1px solid var(--border);
+  border-radius: 8px; padding: .6rem .9rem;
+}
+.sort-bar label { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+.sort-bar select {
+  border: 1.5px solid var(--border); border-radius: 6px; padding: .35rem .7rem;
+  font-size: .82rem; font-family: var(--font-body); outline: none;
+  background: #fff; cursor: pointer; transition: border-color .15s;
+}
+.sort-bar select:focus { border-color: var(--accent); }
+.sort-bar .spacer { flex: 1; }
+.results-label { font-size: .82rem; color: var(--muted); }
+.results-label strong { color: var(--text); }
+
+/* ── Table ── */
+.enq-table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.enq-table-head { padding: .9rem 1.2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.enq-table-head h2 { font-family: var(--font-head); font-size: 1rem; font-weight: 800; }
+.enq-table-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: .6rem 1rem; background: #f8f9fb; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: .75rem 1rem; border-bottom: 1px solid var(--border); font-size: .855rem; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9fb; }
+.enq-unread td { background: #fffbeb !important; }
+.enq-unread:hover td { background: #fef3c7 !important; }
+
+/* Active filter chips */
+.active-filters { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .75rem; background: #eff6ff; border: 1px solid #bfdbfe;
+  color: var(--accent); border-radius: 20px; padding: .2rem .7rem;
+  font-weight: 600;
+}
+.filter-chip a { color: var(--accent); text-decoration: none; font-size: .8rem; opacity: .7; }
+.filter-chip a:hover { opacity: 1; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 3.5rem 2rem; color: var(--muted); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: .6; }
+</style>
+{% endblock %}
+
 {% block content %}
 
-{% set unread_count = enquiries | selectattr('read', 'undefined') | list | length + enquiries | rejectattr('read') | list | length %}
-{% set read_count = enquiries | selectattr('read') | list | length %}
+{% set unread_total = enquiries | rejectattr('read') | list | length %}
+{% set read_total   = enquiries | selectattr('read') | list | length %}
 
-<!-- Toolbar -->
-<div class="flex justify-between items-center mb-3" style="flex-wrap:wrap;gap:0.8rem;">
-  <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-    {% if enquiries %}
-    <form method="POST" action="{{ url_for('admin_mark_all_read') }}" style="display:inline;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-success btn-sm">✓ Mark All Read</button>
-    </form>
-    {% if read_count > 0 %}
-    <form method="POST" action="{{ url_for('admin_bulk_delete_enquiries') }}"
-          data-confirm="Delete all {{ read_count }} read enquiries? This cannot be undone."
-          style="display:inline;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-danger btn-sm">🗑 Delete Read ({{ read_count }})</button>
-    </form>
-    {% endif %}
-    {% endif %}
-  </div>
-  {% if enquiries %}
-  <a href="{{ url_for('admin_export_enquiries') }}" class="btn btn-outline btn-sm">⬇ Export CSV</a>
-  {% endif %}
-</div>
+<div class="enq-layout">
 
-{% if enquiries %}
-<div class="card">
-  <div class="card-header">
-    <h2>All Enquiries ({{ enquiries|length }})
-      {% if unread_count > 0 %}<span class="badge badge-orange" style="margin-left:0.5rem;">{{ unread_count }} unread</span>{% endif %}
-    </h2>
-  </div>
-  <div style="overflow:auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Name</th>
-          <th>Subject</th>
-          <th>Email / Phone</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for enq in enquiries %}
-        <tr style="{{ 'background:#fffbeb;' if not enq.get('read') }}" class="enq-row">
-          <td>
-            {% if not enq.get('read') %}
-            <span class="badge badge-orange">New</span>
-            {% else %}
-            <span style="color:var(--muted);font-size:0.75rem;">Read</span>
-            {% endif %}
-          </td>
-          <td>
-            <a href="{{ url_for('admin_view_enquiry', enq_id=enq.id) }}"
-               style="font-weight:700;color:var(--text);text-decoration:none;">{{ enq.name }}</a>
-            {% if enq.message %}
-            <div style="font-size:0.78rem;color:var(--muted);margin-top:0.15rem;max-width:200px;
-                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              {{ enq.message }}
-            </div>
-            {% endif %}
-          </td>
-          <td style="font-size:0.85rem;">
-            {{ enq.subject }}
-            {% if enq.get('item') %}
-            <div style="font-size:0.75rem;color:var(--accent);font-family:monospace;margin-top:0.15rem;font-weight:600;">{{ enq.item }}</div>
-            {% endif %}
-          </td>
-          <td style="font-size:0.82rem;">
-            <a href="mailto:{{ enq.email | e }}" style="color:var(--accent);">{{ enq.email }}</a>
-            {% if enq.phone %}<br><span style="color:var(--muted);">{{ enq.phone }}</span>{% endif %}
-          </td>
-          <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap;">{{ enq.timestamp }}</td>
-          <td style="display:flex;gap:0.4rem;align-items:center;">
-            <a href="{{ url_for('admin_view_enquiry', enq_id=enq.id) }}" class="btn btn-outline btn-sm">View</a>
-            {% if not enq.get('read') %}
-            <form method="POST" action="{{ url_for('admin_mark_read', enq_id=enq.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-success btn-sm">✓</button>
-            </form>
-            {% endif %}
-            <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}"
-                  data-confirm="Delete this enquiry?">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-danger btn-sm">Del</button>
-            </form>
-          </td>
-        </tr>
+  <!-- ── Filter sidebar ── -->
+  <aside class="enq-filter-sidebar">
+    <div class="enq-filter-head">
+      <h3>Filters</h3>
+      {% if filter_year or filter_month or filter_status != 'all' or filter_subject %}
+      <a href="{{ url_for('admin_enquiries') }}" style="font-size:.72rem;color:var(--accent);">Reset all</a>
+      {% endif %}
+    </div>
+
+    <!-- Status -->
+    <div class="enq-filter-section">
+      <div class="enq-filter-section-label">Status</div>
+      {% set status_opts = [('all','All enquiries',all_enq_count),('unread','Unread',all_enq_count - (all_enq_count - all_enq_count)),('read','Read',all_enq_count)] %}
+      {% for val, label, _ in [('all','All',all_enq_count)] %}
+      <a class="enq-filter-item {{ 'active' if filter_status == 'all' and not filter_year and not filter_month and not filter_subject }}"
+         href="{{ url_for('admin_enquiries', sort=sort_by) }}">
+        <span>All enquiries</span>
+        <span class="enq-filter-count">{{ all_enq_count }}</span>
+      </a>
+      {% endfor %}
+      <a class="enq-filter-item {{ 'active' if filter_status == 'unread' }}"
+         href="{{ url_for('admin_enquiries', status='unread', sort=sort_by) }}">
+        <span>Unread</span>
+        <span class="enq-filter-count">{{ all_enq_count - (year_counts.values()|sum if filter_year else 0) }}</span>
+      </a>
+      <a class="enq-filter-item {{ 'active' if filter_status == 'read' }}"
+         href="{{ url_for('admin_enquiries', status='read', sort=sort_by) }}">
+        <span>Read</span>
+        <span class="enq-filter-count">—</span>
+      </a>
+    </div>
+
+    <!-- By Year -->
+    <div class="enq-filter-section">
+      <div class="enq-filter-section-label">By Year</div>
+      {% if all_years %}
+        {% for yr in all_years %}
+        <div>
+          <a class="enq-filter-item {{ 'active' if filter_year == yr and not filter_month }}"
+             href="{{ url_for('admin_enquiries', year=yr, status=filter_status, sort=sort_by, subject=filter_subject) }}">
+            <span>{{ yr }}</span>
+            <span class="enq-filter-count">{{ year_counts.get(yr, 0) }}</span>
+          </a>
+          <!-- Month breakdown shown when this year is selected -->
+          {% if filter_year == yr and month_counts %}
+          <div class="month-list">
+            {% set MONTHS = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+            {% for mn, cnt in month_counts.items()|sort %}
+            <a class="month-item {{ 'active' if filter_month == mn }}"
+               href="{{ url_for('admin_enquiries', year=yr, month=mn, status=filter_status, sort=sort_by, subject=filter_subject) }}">
+              <span>{{ MONTHS[mn|int] if mn|int < 13 else mn }}</span>
+              <span class="enq-filter-count">{{ cnt }}</span>
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
+      {% else %}
+        <div style="padding:.5rem 1.1rem;font-size:.8rem;color:var(--muted);">No data yet</div>
+      {% endif %}
+    </div>
+
+    <!-- By Subject -->
+    {% if subject_counts %}
+    <div class="enq-filter-section">
+      <div class="enq-filter-section-label">By Subject</div>
+      {% for subj, cnt in subject_counts.items()|sort(attribute='1',reverse=true) %}
+      <a class="enq-filter-item {{ 'active' if filter_subject == subj }}"
+         href="{{ url_for('admin_enquiries', subject=subj, year=filter_year, month=filter_month, status=filter_status, sort=sort_by) }}">
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;" title="{{ subj }}">{{ subj }}</span>
+        <span class="enq-filter-count">{{ cnt }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </aside>
+
+  <!-- ── Main panel ── -->
+  <div>
+
+    <!-- Stats mini-cards -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="val">{{ all_enq_count }}</div>
+        <div class="lbl">Total</div>
+      </div>
+      <div class="stat-mini warn">
+        <div class="val">{{ unread_count }}</div>
+        <div class="lbl">Unread</div>
+      </div>
+      <div class="stat-mini success">
+        <div class="val">{{ all_enq_count - unread_count }}</div>
+        <div class="lbl">Read</div>
+      </div>
+      <div class="stat-mini">
+        <div class="val">{{ enquiries|length }}</div>
+        <div class="lbl">{{ 'Filtered' if (filter_year or filter_month or filter_status != 'all' or filter_subject) else 'Showing' }}</div>
+      </div>
+    </div>
+
+    <!-- Active filter chips -->
+    {% if filter_year or filter_month or filter_status != 'all' or filter_subject %}
+    <div class="active-filters">
+      {% if filter_year %}
+      <span class="filter-chip">
+        📅 {{ filter_year }}{% if filter_month %} / {{ month_names[filter_month|int] if month_names and filter_month|int < 13 else filter_month }}{% endif %}
+        <a href="{{ url_for('admin_enquiries', status=filter_status, sort=sort_by, subject=filter_subject) }}" title="Remove">×</a>
+      </span>
+      {% endif %}
+      {% if filter_status != 'all' %}
+      <span class="filter-chip">
+        {{ '✉ Unread' if filter_status == 'unread' else '✓ Read' }}
+        <a href="{{ url_for('admin_enquiries', year=filter_year, month=filter_month, sort=sort_by, subject=filter_subject) }}" title="Remove">×</a>
+      </span>
+      {% endif %}
+      {% if filter_subject %}
+      <span class="filter-chip">
+        📋 {{ filter_subject }}
+        <a href="{{ url_for('admin_enquiries', year=filter_year, month=filter_month, status=filter_status, sort=sort_by) }}" title="Remove">×</a>
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Sort bar + bulk actions -->
+    <div class="sort-bar">
+      <label>Sort:</label>
+      <select id="sortSelect" onchange="applySortChange(this.value)">
+        <option value="newest" {% if sort_by=='newest' %}selected{% endif %}>Newest first</option>
+        <option value="oldest" {% if sort_by=='oldest' %}selected{% endif %}>Oldest first</option>
+        <option value="name"   {% if sort_by=='name'   %}selected{% endif %}>Name A → Z</option>
+      </select>
+      <div class="spacer"></div>
+      <p class="results-label">
+        <strong>{{ enquiries|length }}</strong> result{{ 's' if enquiries|length != 1 }}
+        {% if filter_year %} in {{ filter_year }}{% if filter_month %} / {{ month_names[filter_month|int] if month_names and filter_month|int < 13 else filter_month }}{% endif %}{% endif %}
+      </p>
+      {% if enquiries %}
+      <form method="POST" action="{{ url_for('admin_mark_all_read') }}" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-success btn-sm">✓ Mark All Read</button>
+      </form>
+      {% set read_c = enquiries | selectattr('read') | list | length %}
+      {% if read_c > 0 %}
+      <form method="POST" action="{{ url_for('admin_bulk_delete_enquiries') }}"
+            onsubmit="return confirm('Delete {{ read_c }} read enquiries in current view? Cannot be undone.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn-sm">🗑 Delete Read ({{ read_c }})</button>
+      </form>
+      {% endif %}
+      <a href="{{ url_for('admin_export_enquiries') }}" class="btn btn-outline btn-sm">⬇ CSV</a>
+      {% endif %}
+    </div>
+
+    <!-- Table -->
+    {% if enquiries %}
+    <div class="enq-table-wrap">
+      <div style="overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Name</th>
+              <th>Subject / Item</th>
+              <th>Contact</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for enq in enquiries %}
+            <tr class="{{ 'enq-unread' if not enq.get('read') }}">
+              <td>
+                {% if not enq.get('read') %}
+                <span class="badge badge-orange">New</span>
+                {% else %}
+                <span style="color:var(--muted);font-size:.72rem;">Read</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{{ url_for('admin_view_enquiry', enq_id=enq.id) }}"
+                   style="font-weight:700;color:var(--text);text-decoration:none;">{{ enq.name }}</a>
+                {% if enq.message %}
+                <div style="font-size:.75rem;color:var(--muted);margin-top:.1rem;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ enq.message }}</div>
+                {% endif %}
+              </td>
+              <td style="max-width:180px;">
+                <div style="font-size:.84rem;">{{ enq.subject }}</div>
+                {% if enq.get('item') %}
+                <div style="font-size:.73rem;color:var(--accent);font-family:monospace;margin-top:.1rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ enq.item }}</div>
+                {% endif %}
+              </td>
+              <td style="font-size:.82rem;">
+                <a href="mailto:{{ enq.email | e }}" style="color:var(--accent);">{{ enq.email }}</a>
+                {% if enq.phone %}<br><span style="color:var(--muted);">{{ enq.phone }}</span>{% endif %}
+              </td>
+              <td style="white-space:nowrap;">
+                <div style="font-size:.8rem;color:var(--text);font-weight:600;">{{ enq.timestamp[:10] }}</div>
+                <div style="font-size:.72rem;color:var(--muted);">{{ enq.timestamp[11:16] }} UTC</div>
+              </td>
+              <td>
+                <div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;">
+                  <a href="{{ url_for('admin_view_enquiry', enq_id=enq.id) }}" class="btn btn-outline btn-sm">View</a>
+                  {% if not enq.get('read') %}
+                  <form method="POST" action="{{ url_for('admin_mark_read', enq_id=enq.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-success btn-sm" title="Mark as read">✓</button>
+                  </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}"
+                        onsubmit="return confirm('Delete this enquiry?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Del</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">✉️</div>
+      {% if filter_year or filter_month or filter_status != 'all' or filter_subject %}
+      <p style="font-size:1.05rem;font-weight:600;">No enquiries match these filters</p>
+      <p style="font-size:.85rem;margin-top:.4rem;">Try changing or <a href="{{ url_for('admin_enquiries') }}" style="color:var(--accent);">clearing all filters</a></p>
+      {% else %}
+      <p style="font-size:1.05rem;">No enquiries yet</p>
+      <p style="font-size:.85rem;margin-top:.4rem;">They will appear here when customers submit the enquiry form.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
   </div>
 </div>
-{% else %}
-<div style="text-align:center;padding:4rem;color:var(--muted);">
-  <div style="font-size:3rem;margin-bottom:1rem;">✉️</div>
-  <p style="font-size:1.1rem;">No enquiries yet.</p>
-  <p style="font-size:0.85rem;margin-top:0.4rem;">They will appear here when customers submit the enquiry form.</p>
-</div>
-{% endif %}
+{% endblock %}
 
+{% block extra_css %}{% endblock %}
+
+{% block extra_js %}
+<script>
+function applySortChange(val) {
+  var url = new URL(window.location.href);
+  url.searchParams.set('sort', val);
+  window.location.href = url.toString();
+}
+</script>
 {% endblock %}
