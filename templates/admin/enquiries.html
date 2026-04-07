@@ -122,22 +122,20 @@ tr:hover td { background: #f8f9fb; }
     <div class="enq-filter-section">
       <div class="enq-filter-section-label">Status</div>
       {% set status_opts = [('all','All enquiries',all_enq_count),('unread','Unread',all_enq_count - (all_enq_count - all_enq_count)),('read','Read',all_enq_count)] %}
-      {% for val, label, _ in [('all','All',all_enq_count)] %}
       <a class="enq-filter-item {{ 'active' if filter_status == 'all' and not filter_year and not filter_month and not filter_subject }}"
          href="{{ url_for('admin_enquiries', sort=sort_by) }}">
         <span>All enquiries</span>
         <span class="enq-filter-count">{{ all_enq_count }}</span>
       </a>
-      {% endfor %}
       <a class="enq-filter-item {{ 'active' if filter_status == 'unread' }}"
          href="{{ url_for('admin_enquiries', status='unread', sort=sort_by) }}">
         <span>Unread</span>
-        <span class="enq-filter-count">{{ all_enq_count - (year_counts.values()|sum if filter_year else 0) }}</span>
+        <span class="enq-filter-count">{{ unread_count }}</span>
       </a>
       <a class="enq-filter-item {{ 'active' if filter_status == 'read' }}"
          href="{{ url_for('admin_enquiries', status='read', sort=sort_by) }}">
         <span>Read</span>
-        <span class="enq-filter-count">—</span>
+        <span class="enq-filter-count">{{ all_enq_count - unread_count }}</span>
       </a>
     </div>
 
@@ -237,7 +235,7 @@ tr:hover td { background: #f8f9fb; }
     <!-- Sort bar + bulk actions -->
     <div class="sort-bar">
       <label>Sort:</label>
-      <select id="sortSelect" onchange="applySortChange(this.value)">
+      <select id="sortSelect">
         <option value="newest" {% if sort_by=='newest' %}selected{% endif %}>Newest first</option>
         <option value="oldest" {% if sort_by=='oldest' %}selected{% endif %}>Oldest first</option>
         <option value="name"   {% if sort_by=='name'   %}selected{% endif %}>Name A → Z</option>
@@ -350,14 +348,16 @@ tr:hover td { background: #f8f9fb; }
 </div>
 {% endblock %}
 
-{% block extra_css %}{% endblock %}
 
 {% block extra_js %}
 <script>
-function applySortChange(val) {
-  var url = new URL(window.location.href);
-  url.searchParams.set('sort', val);
-  window.location.href = url.toString();
-}
+(function(){
+  var sel = document.getElementById('sortSelect');
+  if(sel) sel.addEventListener('change', function(){
+    var url = new URL(window.location.href);
+    url.searchParams.set('sort', this.value);
+    window.location.href = url.toString();
+  });
+})();
 </script>
 {% endblock %}

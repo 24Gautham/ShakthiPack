@@ -6,6 +6,7 @@ Production-ready build.
 from flask import (Flask, render_template, request, redirect, url_for,
                    session, flash, jsonify, abort, make_response, g)
 import json, os, hashlib, uuid, re, time, logging, io, csv, hmac as _hmac
+from collections import defaultdict
 from functools import wraps
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
@@ -1101,7 +1102,6 @@ def admin_delete_spare(cat_id, spare_id):
 @app.route("/admin/enquiries")
 @login_required
 def admin_enquiries():
-    from collections import defaultdict
     data = load_data()
     all_enq = data["enquiries"]
 
