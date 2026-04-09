@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+{% block title %}Activity Log{% endblock %}
+{% block page_title %}Admin Activity Log{% endblock %}
+
+{% block extra_css %}
+<style>
+.log-table-wrap { background:#fff; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.log-action { font-family:monospace; font-size:.78rem; background:#f0f2f5; padding:.15rem .45rem; border-radius:4px; color:var(--accent); }
+.log-detail { font-size:.79rem; color:var(--muted); max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.log-meta { font-size:.75rem; color:var(--muted); }
+.page-links { display:flex; align-items:center; justify-content:center; gap:.4rem; margin-top:1.2rem; flex-wrap:wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
+  <p style="color:var(--muted);font-size:.88rem;">{{ total }} total log entries · superadmin only</p>
+</div>
+
+<div class="log-table-wrap">
+  {% if logs %}
+  <div style="overflow:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Time (UTC)</th>
+          <th>Admin</th>
+          <th>Action</th>
+          <th>Detail</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="log-meta" style="white-space:nowrap;">{{ log.ts }}</td>
+          <td style="font-weight:600;font-size:.84rem;">{{ log.username }}</td>
+          <td><span class="log-action">{{ log.action }}</span></td>
+          <td class="log-detail" title="{{ log.detail }}">{{ log.detail or '—' }}</td>
+          <td class="log-meta">{{ log.ip or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:3rem;color:var(--muted);">
+    <div style="font-size:2.5rem;margin-bottom:.8rem;">📋</div>
+    <p>No activity logged yet.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% if total_pages > 1 %}
+<div class="page-links">
+  {% if page > 1 %}
+  <a href="{{ url_for('admin_activity_log', page=page-1) }}" class="btn btn-outline btn-sm">← Prev</a>
+  {% endif %}
+  {% for p in range(1, total_pages+1) %}
+    {% if p == page %}
+    <span class="btn btn-primary btn-sm" style="pointer-events:none;">{{ p }}</span>
+    {% elif p == 1 or p == total_pages or (p >= page-2 and p <= page+2) %}
+    <a href="{{ url_for('admin_activity_log', page=p) }}" class="btn btn-outline btn-sm">{{ p }}</a>
+    {% elif p == page-3 or p == page+3 %}
+    <span style="padding:.3rem .5rem;color:var(--muted);">…</span>
+    {% endif %}
+  {% endfor %}
+  {% if page < total_pages %}
+  <a href="{{ url_for('admin_activity_log', page=page+1) }}" class="btn btn-outline btn-sm">Next →</a>
+  {% endif %}
+</div>
+<p style="text-align:center;font-size:.76rem;color:var(--muted);margin-top:.4rem;">Page {{ page }} of {{ total_pages }}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit' if edit else 'Add' }} Admin{% endblock %}
+{% block page_title %}{{ 'Edit' if edit else 'Add' }} Admin{% endblock %}
+
+{% block content %}
+<div style="max-width:560px;">
+  <div class="card">
+    <div class="card-body">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        {% if not edit %}
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" required maxlength="80"
+                 value="{{ admin.username if admin else '' }}"
+                 placeholder="e.g. editor1" autocomplete="off">
+        </div>
+        {% else %}
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" value="{{ admin.username }}" disabled style="background:#f0f2f5;color:var(--muted);">
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label>Role</label>
+          <select name="role" {% if is_primary %}disabled{% endif %}>
+            <option value="superadmin" {% if admin and admin.role == 'superadmin' %}selected{% endif %}>Superadmin — full access including admin management</option>
+            <option value="editor" {% if not admin or admin.role == 'editor' %}selected{% endif %}>Editor — manage machines, spares, enquiries</option>
+          </select>
+          {% if is_primary %}
+          <input type="hidden" name="role" value="{{ admin.role }}">
+          <p style="font-size:.76rem;color:var(--muted);margin-top:.3rem;">Primary admin role cannot be changed here. Use Settings to manage the primary account.</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'New Password' if edit else 'Password' }} <span style="color:var(--muted);font-weight:400;">{% if edit %}(leave blank to keep current){% endif %}</span></label>
+          <input type="password" name="password" {% if not edit %}required{% endif %}
+                 minlength="12" autocomplete="new-password"
+                 placeholder="At least 12 characters">
+        </div>
+
+        <div style="display:flex;gap:.6rem;margin-top:1.5rem;">
+          <button type="submit" class="btn btn-primary">{{ 'Save Changes' if edit else 'Create Admin' }}</button>
+          <a href="{{ url_for('admin_manage_admins') }}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if edit %}
+  <div style="margin-top:1rem;padding:.8rem 1rem;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:.82rem;color:#92400e;">
+    <strong>Role permissions:</strong><br>
+    <strong>Superadmin</strong> — full access: manage admins, view activity log, change site settings.<br>
+    <strong>Editor</strong> — can manage machines, spares, and enquiries. Cannot manage admins or change site settings.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

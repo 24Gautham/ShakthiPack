@@ -344,6 +344,34 @@ tr:hover td { background: #f8f9fb; }
     </div>
     {% endif %}
 
+    <!-- ── PAGINATION ── -->
+    {% if total_pages > 1 %}
+    <div style="display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1.2rem;flex-wrap:wrap;">
+      {% if page > 1 %}
+      <a href="{{ url_for('admin_enquiries', page=page-1, year=filter_year, month=filter_month, status=filter_status, subject=filter_subject, sort=sort_by) }}"
+         class="btn btn-outline btn-sm">← Prev</a>
+      {% endif %}
+      {% for p in range(1, total_pages+1) %}
+        {% if p == page %}
+        <span class="btn btn-primary btn-sm" style="pointer-events:none;">{{ p }}</span>
+        {% elif p == 1 or p == total_pages or (p >= page-2 and p <= page+2) %}
+        <a href="{{ url_for('admin_enquiries', page=p, year=filter_year, month=filter_month, status=filter_status, subject=filter_subject, sort=sort_by) }}"
+           class="btn btn-outline btn-sm">{{ p }}</a>
+        {% elif p == page-3 or p == page+3 %}
+        <span style="padding:.3rem .5rem;color:var(--muted);font-size:.8rem;">…</span>
+        {% endif %}
+      {% endfor %}
+      {% if page < total_pages %}
+      <a href="{{ url_for('admin_enquiries', page=page+1, year=filter_year, month=filter_month, status=filter_status, subject=filter_subject, sort=sort_by) }}"
+         class="btn btn-outline btn-sm">Next →</a>
+      {% endif %}
+    </div>
+    <p style="text-align:center;font-size:.76rem;color:var(--muted);margin-top:.5rem;">
+      Page {{ page }} of {{ total_pages }} &nbsp;·&nbsp; {{ total_filtered }} total result{{ 's' if total_filtered != 1 }}
+      &nbsp;·&nbsp; {{ enq_per_page }} per page
+    </p>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}

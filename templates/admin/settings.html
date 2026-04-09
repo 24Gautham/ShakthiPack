@@ -2,6 +2,25 @@
 {% block title %}Settings{% endblock %}
 {% block page_title %}Settings{% endblock %}
 {% block content %}
+
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+  <div class="card" style="flex:1;min-width:220px;">
+    <div class="card-body" style="padding:1rem;">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.3rem;">Your Account</div>
+      <div style="font-size:1rem;font-weight:700;">{{ admin.username }}</div>
+      <div style="margin-top:.3rem;">
+        <span style="font-size:.72rem;background:{% if admin.role=='superadmin' %}#dbeafe{% else %}#f0fdf4{% endif %};color:{% if admin.role=='superadmin' %}#1d4ed8{% else %}#15803d{% endif %};border-radius:4px;padding:.1rem .5rem;font-weight:700;">{{ admin.role }}</span>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:.5rem;">
+        Last login: <strong style="color:var(--text);">{{ admin.last_login or 'Not recorded' }}</strong>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;">
+        Database: <strong style="color:var(--text);">{{ db_backend }}</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="grid-2">
 
   <!-- Password change -->

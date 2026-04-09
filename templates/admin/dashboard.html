@@ -3,6 +3,13 @@
 {% block page_title %}Dashboard{% endblock %}
 {% block content %}
 
+<!-- DB backend badge -->
+<div style="margin-bottom:.8rem;font-size:.76rem;color:var(--muted);">
+  Backend: <span style="background:{% if db_backend=='postgresql' %}#dbeafe{% else %}#f0fdf4{% endif %};color:{% if db_backend=='postgresql' %}#1d4ed8{% else %}#15803d{% endif %};border-radius:4px;padding:.1rem .4rem;font-weight:700;">{{ db_backend }}</span>
+  &nbsp;·&nbsp; Logged in as <strong>{{ current_admin.username }}</strong>
+  <span style="font-size:.68rem;background:{% if current_admin.role=='superadmin' %}#dbeafe{% else %}#f0fdf4{% endif %};color:{% if current_admin.role=='superadmin' %}#1d4ed8{% else %}#15803d{% endif %};border-radius:3px;padding:.05rem .35rem;margin-left:.2rem;">{{ current_admin.role }}</span>
+</div>
+
 <div class="grid-4 mb-3">
   <div class="stat-card">
     <div class="stat-value">{{ total_machines }}</div>
@@ -54,5 +61,32 @@
   </div>
 </div>
 {% endif %}
+
+{% if recent_activity %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h2>Recent Activity</h2>
+    {% if current_admin.role == 'superadmin' %}
+    <a href="{{ url_for('admin_activity_log') }}" class="btn btn-outline btn-sm">View All →</a>
+    {% endif %}
+  </div>
+  <div style="overflow:auto;">
+    <table>
+      <thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Detail</th></tr></thead>
+      <tbody>
+        {% for log in recent_activity %}
+        <tr>
+          <td style="font-size:.74rem;color:var(--muted);white-space:nowrap;">{{ log.ts }}</td>
+          <td style="font-size:.82rem;font-weight:600;">{{ log.username }}</td>
+          <td><span style="font-family:monospace;font-size:.76rem;background:#f0f2f5;padding:.12rem .4rem;border-radius:4px;color:var(--accent);">{{ log.action }}</span></td>
+          <td style="font-size:.79rem;color:var(--muted);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ log.detail or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
 
 {% endblock %}

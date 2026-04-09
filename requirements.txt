@@ -3,3 +3,5 @@ gunicorn>=21.2.0
 python-dotenv>=1.0.0
 Werkzeug>=2.3,<3.0
 Pillow>=10.0.0
+# PostgreSQL support (optional — falls back to data.json if DATABASE_URL is not set)
+psycopg2-binary>=2.9.0

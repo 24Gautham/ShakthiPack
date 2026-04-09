@@ -23,7 +23,11 @@
           <div style="margin-bottom:0.5rem;"><img src="{{ url_for('static', filename='uploads/' + machine.image) }}" alt="Current image" style="max-height:120px;border-radius:8px;border:1px solid var(--border);"></div>
           <small style="color:var(--muted);font-size:0.75rem;display:block;margin-bottom:0.4rem;">Upload a new image to replace the current one.</small>
           {% endif %}
-          <input type="file" name="image" accept="image/*">
+          <input type="file" name="image" accept="image/*" id="imgInput" onchange="previewImg(this)">
+          <div id="imgPreview" style="margin-top:.6rem;display:none;">
+            <img id="imgPreviewEl" src="" alt="Preview" style="max-height:150px;border-radius:8px;border:1px solid var(--border);object-fit:cover;">
+            <p style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">Preview (not yet saved)</p>
+          </div>
           <small style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;display:block;">Accepted: JPG, PNG, GIF, WEBP.</small>
         </div>
         <div class="flex gap-2">

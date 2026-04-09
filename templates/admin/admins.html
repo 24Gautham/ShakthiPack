@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% block title %}Manage Admins{% endblock %}
+{% block page_title %}Manage Admins{% endblock %}
+
+{% block extra_css %}
+<style>
+.role-badge { display:inline-block; padding:.15rem .55rem; border-radius:4px; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.role-superadmin { background:#dbeafe; color:#1d4ed8; border:1px solid #93c5fd; }
+.role-editor { background:#f0fdf4; color:#15803d; border:1px solid #86efac; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
+  <p style="color:var(--muted);font-size:.88rem;">{{ admins|length }} admin account{{ 's' if admins|length != 1 }}</p>
+  <a href="{{ url_for('admin_add_admin') }}" class="btn btn-primary">+ Add Admin</a>
+</div>
+
+<div class="card">
+  <div style="overflow:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Last Login</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for admin in admins %}
+        <tr>
+          <td>
+            <strong>{{ admin.username }}</strong>
+            {% if admin._is_primary %}<span style="font-size:.68rem;color:var(--muted);margin-left:.4rem;">(primary)</span>{% endif %}
+            {% if admin.username == current_admin.username %}<span style="font-size:.68rem;color:var(--accent);margin-left:.4rem;">← you</span>{% endif %}
+          </td>
+          <td>
+            <span class="role-badge role-{{ admin.role }}">{{ admin.role }}</span>
+          </td>
+          <td style="font-size:.82rem;color:var(--muted);">
+            {{ admin.last_login or 'Never' }}
+          </td>
+          <td style="font-size:.8rem;color:var(--muted);">
+            {{ admin.created_at or '—' }}
+          </td>
+          <td>
+            <div style="display:flex;gap:.35rem;">
+              <a href="{{ url_for('admin_edit_admin', username=admin.username) }}" class="btn btn-outline btn-sm">Edit</a>
+              {% if not admin._is_primary and admin.username != current_admin.username %}
+              <form method="POST" action="{{ url_for('admin_delete_admin', username=admin.username) }}"
+                    onsubmit="return confirm('Delete admin {{ admin.username }}? This cannot be undone.')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -128,6 +128,18 @@ tr:hover td { background: #f8f9fb; }
     </a>
   </div>
 
+  {% if current_admin.role == 'superadmin' %}
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Admin</div>
+    <a href="{{ url_for('admin_manage_admins') }}" class="sidebar-link {{ 'active' if 'admin_manage_admins' in request.endpoint or 'admin_add_admin' == request.endpoint or 'admin_edit_admin' == request.endpoint }}">
+      <span class="icon">👥</span> Manage Admins
+    </a>
+    <a href="{{ url_for('admin_activity_log') }}" class="sidebar-link {{ 'active' if request.endpoint == 'admin_activity_log' }}">
+      <span class="icon">📋</span> Activity Log
+    </a>
+  </div>
+  {% endif %}
+
   <div class="sidebar-section">
     <div class="sidebar-section-label">Account</div>
     <a href="{{ url_for('admin_settings') }}" class="sidebar-link {{ 'active' if request.endpoint == 'admin_settings' }}">
@@ -136,6 +148,10 @@ tr:hover td { background: #f8f9fb; }
   </div>
 
   <div class="sidebar-footer">
+    <div style="padding:.4rem .6rem .6rem;font-size:.73rem;color:#64748b;border-bottom:1px solid #334155;margin-bottom:.4rem;">
+      Logged in as <strong style="color:#94a3b8;">{{ current_admin.username }}</strong>
+      <span style="font-size:.65rem;background:{% if current_admin.role=='superadmin' %}#3b82f6{% else %}#475569{% endif %};color:#fff;border-radius:3px;padding:.05rem .35rem;margin-left:.3rem;">{{ current_admin.role }}</span>
+    </div>
     <a href="{{ url_for('index') }}">← View Website</a>
     <form method="POST" action="{{ url_for('admin_logout') }}" style="margin-top:.3rem;">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
