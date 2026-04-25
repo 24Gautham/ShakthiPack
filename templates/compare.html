@@ -104,7 +104,7 @@
             {% endif %}
             <div class="mname">{{ m.name }}</div>
             <div class="mcat">{{ m.category }}</div>
-            <a class="remove-link" href="/compare?{{ selected_ids | reject('equalto', m.id) | map('string') | map('prepend', 'id=') | join('&') }}">✕ Remove</a>
+            <a class="remove-link" href="/compare?{% for sid in selected_ids %}{% if sid != m.id %}id={{ sid }}&{% endif %}{% endfor %}">✕ Remove</a>
           </th>
           {% endfor %}
           {% if selected|length < 3 %}
