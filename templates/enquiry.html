@@ -53,6 +53,11 @@
 .submit-btn:hover { background: var(--accent2); }
 .submit-btn:active { transform: scale(0.99); }
 .form-footer { margin-top: 1.2rem; text-align: center; font-size: 0.8rem; color: var(--muted); }
+.field-error { font-size: 0.75rem; color: #dc2626; margin-top: 0.3rem; display: none; }
+.field-error.visible { display: block; }
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
 
 @media (max-width: 860px) {
   .enq-layout { grid-template-columns: 1fr; }
@@ -136,8 +141,9 @@
           <div class="form-row">
             <div class="form-group">
               <label>Your Name <span class="req">*</span></label>
-              <input type="text" name="name" placeholder="Full name"
+              <input type="text" name="name" id="nameField" placeholder="Full name"
                      value="{{ prefill.get('name', '') | e }}" required autocomplete="name">
+              <div class="field-error" id="nameError">Name must contain only letters and spaces.</div>
             </div>
             <div class="form-group">
               <label>Email Address <span class="req">*</span></label>
@@ -149,12 +155,13 @@
           <div class="form-row">
             <div class="form-group">
               <label>Phone Number</label>
-              <input type="tel" name="phone" placeholder="+91 98765 43210"
+              <input type="tel" name="phone" id="phoneField" placeholder="10-digit number"
                      value="{{ prefill.get('phone', '') | e }}" autocomplete="tel">
+              <div class="field-error" id="phoneError">Phone number must be exactly 10 digits.</div>
             </div>
             <div class="form-group">
               <label>Subject <span class="req">*</span></label>
-              <select name="subject" required>
+              <select name="subject" id="subjectField" required>
                 <option value="">Select subject…</option>
                 {% set subjects = [
                   'Machine Purchase Enquiry',
@@ -167,6 +174,7 @@
                   {% if prefill.get('subject') == s %}selected{% endif %}>{{ s }}</option>
                 {% endfor %}
               </select>
+              <div class="field-error" id="subjectError">Please select a subject.</div>
             </div>
           </div>
 
@@ -204,11 +212,103 @@
       if(banner){ banner.style.transition='opacity .3s'; banner.style.opacity='0'; setTimeout(function(){ banner.remove(); }, 300); }
     });
   }
-  // Char counter (CSP-safe, no inline oninput)
+  // Char counter
   var ta = document.getElementById('messageField');
   var counter = document.getElementById('charCount');
   if(ta && counter) {
     ta.addEventListener('input', function(){ counter.textContent = this.value.length; });
+  }
+
+  // --- Form Validation ---
+  function showError(fieldId, errorId) {
+    var field = document.getElementById(fieldId);
+    var error = document.getElementById(errorId);
+    if(field) field.classList.add('invalid');
+    if(error) error.classList.add('visible');
+  }
+  function clearError(fieldId, errorId) {
+    var field = document.getElementById(fieldId);
+    var error = document.getElementById(errorId);
+    if(field) field.classList.remove('invalid');
+    if(error) error.classList.remove('visible');
+  }
+
+  // Name: only letters and spaces
+  var nameField = document.getElementById('nameField');
+  if(nameField) {
+    nameField.addEventListener('input', function(){
+      var val = this.value;
+      // Block any character that isn't a letter or space
+      this.value = val.replace(/[^a-zA-Z\s]/g, '');
+      if(this.value.trim().length > 0) clearError('nameField', 'nameError');
+    });
+  }
+
+  // Phone: only digits, max 10
+  var phoneField = document.getElementById('phoneField');
+  if(phoneField) {
+    phoneField.addEventListener('input', function(){
+      // Strip non-digits
+      this.value = this.value.replace(/\D/g, '');
+      // Limit to 10 digits
+      if(this.value.length > 10) this.value = this.value.slice(0, 10);
+      if(this.value.length === 0 || this.value.length === 10) clearError('phoneField', 'phoneError');
+    });
+  }
+
+  // Subject: clear error on change
+  var subjectField = document.getElementById('subjectField');
+  if(subjectField) {
+    subjectField.addEventListener('change', function(){
+      if(this.value) clearError('subjectField', 'subjectError');
+    });
+  }
+
+  // Form submit validation
+  var form = document.querySelector('form[method="POST"]');
+  if(form) {
+    form.addEventListener('submit', function(e){
+      var valid = true;
+
+      // Validate name
+      var nameVal = nameField ? nameField.value.trim() : '';
+      if(!nameVal) {
+        showError('nameField', 'nameError');
+        document.getElementById('nameError').textContent = 'Name is required.';
+        valid = false;
+      } else if(/[^a-zA-Z\s]/.test(nameVal)) {
+        showError('nameField', 'nameError');
+        document.getElementById('nameError').textContent = 'Name must contain only letters and spaces.';
+        valid = false;
+      } else {
+        clearError('nameField', 'nameError');
+      }
+
+      // Validate phone (if filled, must be exactly 10 digits)
+      var phoneVal = phoneField ? phoneField.value.trim() : '';
+      if(phoneVal.length > 0 && !/^\d{10}$/.test(phoneVal)) {
+        showError('phoneField', 'phoneError');
+        valid = false;
+      } else {
+        clearError('phoneField', 'phoneError');
+      }
+
+      // Validate subject
+      var subjectVal = subjectField ? subjectField.value : '';
+      if(!subjectVal) {
+        showError('subjectField', 'subjectError');
+        valid = false;
+      } else {
+        clearError('subjectField', 'subjectError');
+      }
+
+      if(!valid) {
+        e.preventDefault();
+        // Scroll to first error
+        var firstInvalid = form.querySelector('.invalid');
+        if(firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
   }
 })();
 </script>

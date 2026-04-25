@@ -20,6 +20,13 @@ from functools import wraps
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 
+# ── FLASK-MAIL (optional) ──────────────────────────────────────
+try:
+    from flask_mail import Mail, Message as MailMessage
+    _MAIL_AVAILABLE = True
+except ImportError:
+    _MAIL_AVAILABLE = False
+
 # ── ENV ────────────────────────────────────────────────────────
 try:
     from dotenv import load_dotenv
@@ -64,7 +71,42 @@ app.config.update(
     SESSION_COOKIE_SECURE     = os.environ.get("HTTPS", "0") == "1",
     PERMANENT_SESSION_LIFETIME= timedelta(hours=8),
     MAX_CONTENT_LENGTH        = 8 * 1024 * 1024,
+    # Flask-Mail config (set these in .env to enable email notifications)
+    MAIL_SERVER               = os.environ.get("MAIL_SERVER", "smtp.gmail.com"),
+    MAIL_PORT                 = int(os.environ.get("MAIL_PORT", 587)),
+    MAIL_USE_TLS              = os.environ.get("MAIL_USE_TLS", "1") == "1",
+    MAIL_USERNAME             = os.environ.get("MAIL_USERNAME", ""),
+    MAIL_PASSWORD             = os.environ.get("MAIL_PASSWORD", ""),
+    MAIL_DEFAULT_SENDER       = os.environ.get("MAIL_DEFAULT_SENDER", ""),
+    MAIL_ADMIN_RECIPIENT      = os.environ.get("MAIL_ADMIN_RECIPIENT", ""),
 )
+
+mail = Mail(app) if _MAIL_AVAILABLE else None
+
+def send_enquiry_email(entry: dict):
+    """Send email notification to admin when new enquiry arrives."""
+    if not _MAIL_AVAILABLE or not mail:
+        return
+    recipient = app.config.get("MAIL_ADMIN_RECIPIENT") or app.config.get("MAIL_USERNAME")
+    if not recipient or not app.config.get("MAIL_USERNAME"):
+        return
+    try:
+        subject = f"New Enquiry: {entry.get('subject','—')} from {entry.get('name','—')}"
+        body = (
+            f"New enquiry received on ShakthiPack Machineries.\n\n"
+            f"Name:    {entry.get('name','')}\n"
+            f"Email:   {entry.get('email','')}\n"
+            f"Phone:   {entry.get('phone','—')}\n"
+            f"Subject: {entry.get('subject','')}\n"
+            f"Item:    {entry.get('item','—')}\n"
+            f"Time:    {entry.get('timestamp','')}\n\n"
+            f"Message:\n{entry.get('message','')}\n"
+        )
+        msg = MailMessage(subject=subject, recipients=[recipient], body=body)
+        mail.send(msg)
+        logger.info("Enquiry notification email sent to %s", recipient, extra={"request_id": _rid()})
+    except Exception as e:
+        logger.warning("Failed to send enquiry email: %s", e, extra={"request_id": _rid()})
 
 # ── REQUEST LIFECYCLE ─────────────────────────────────────────
 
@@ -806,13 +848,33 @@ def enquiry():
             for err in errors: flash(err,"error")
             return render_template("enquiry.html",prefill=request.form,machine_categories=data["machine_categories"],spare_categories=data["spare_categories"]),422
         _record_hit(_enquiry_attempts,ip)
-        entry={"id":str(uuid.uuid4()),"name":name,"email":email,"phone":phone,"subject":subject,"item":item,"message":message,"timestamp":datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),"ip":ip,"read":False}
+        entry={"id":str(uuid.uuid4()),"name":name,"email":email,"phone":phone,"subject":subject,"item":item,"message":message,"timestamp":datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),"ip":ip,"read":False,"status":"new"}
         data["enquiries"].append(entry); save_data(data)
         logger.info("New enquiry from %s <%s>",name,email,extra={"request_id":_rid()})
+        send_enquiry_email(entry)
         flash("Your enquiry has been submitted! We'll get back to you within 24 hours.","success")
         return redirect(url_for("enquiry"))
     prefill={"subject":sanitize(request.args.get("subject",""),120),"item":sanitize(request.args.get("item",""),200),"message":sanitize(request.args.get("message",""),2000)}
     return render_template("enquiry.html",prefill=prefill,machine_categories=data["machine_categories"],spare_categories=data["spare_categories"])
+
+@app.route("/compare")
+def compare():
+    data = load_data()
+    ids_raw = request.args.getlist("id")
+    try:
+        ids = [int(i) for i in ids_raw if i.isdigit()][:3]
+    except Exception:
+        ids = []
+    selected = []
+    for cat in data["machine_categories"]:
+        for m in cat["machines"]:
+            if m["id"] in ids:
+                selected.append({**m, "category": cat["name"], "cat_slug": cat["slug"]})
+    all_machines = []
+    for cat in data["machine_categories"]:
+        for m in cat["machines"]:
+            all_machines.append({"id": m["id"], "name": m["name"], "category": cat["name"]})
+    return render_template("compare.html", selected=selected, all_machines=all_machines, selected_ids=ids)
 
 @app.route("/contact")
 def contact(): return render_template("contact.html")
@@ -1137,6 +1199,23 @@ def admin_mark_read(enq_id):
     save_data(data); _refresh_unread_cache(data)
     return redirect(url_for("admin_enquiries"))
 
+@app.route("/admin/enquiries/<enq_id>/status",methods=["POST"])
+@login_required
+@csrf_protected
+def admin_update_enquiry_status(enq_id):
+    data=load_data()
+    status=request.form.get("status","new")
+    if status not in ("new","in_progress","resolved"): status="new"
+    for e in data["enquiries"]:
+        if e["id"]==enq_id:
+            e["status"]=status
+            if status!="new": e["read"]=True
+            break
+    save_data(data); _refresh_unread_cache(data)
+    log_activity("update_enquiry_status",f"id={enq_id} status={status}")
+    flash(f"Enquiry status updated to '{status.replace('_',' ').title()}'.","success")
+    return redirect(url_for("admin_view_enquiry",enq_id=enq_id))
+
 @app.route("/admin/enquiries/delete/<enq_id>",methods=["POST"])
 @login_required
 @csrf_protected
@@ -1279,6 +1358,25 @@ def admin_settings():
                 data["site_settings"]={"company_name":sanitize(request.form.get("company_name",""),120),"phone":sanitize(request.form.get("phone",""),30),"email":sanitize(request.form.get("email",""),254),"address":sanitize(request.form.get("address",""),300)}
                 save_data(data); log_activity("update_site_settings","Site settings updated"); flash("Site settings updated.","success")
     return render_template("admin/settings.html",settings=data.get("site_settings",{}),force_change=admin_record.get("force_change",False),admin=admin_record,db_backend="postgresql" if DATABASE_URL else "json")
+
+@app.route("/admin/enquiries/chart-data")
+@login_required
+def admin_enquiry_chart_data():
+    data=load_data()
+    monthly=defaultdict(int)
+    for e in data["enquiries"]:
+        ts=e.get("timestamp","")
+        if len(ts)>=7:
+            key=ts[:7]  # YYYY-MM
+            monthly[key]+=1
+    sorted_keys=sorted(monthly.keys())[-12:]
+    labels=[]; counts=[]
+    MONTH_NAMES={"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun","07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"}
+    for k in sorted_keys:
+        y,m=k.split("-")
+        labels.append(f"{MONTH_NAMES.get(m,m)} {y}")
+        counts.append(monthly[k])
+    return jsonify({"labels":labels,"counts":counts})
 
 # ── ENTRY POINT ───────────────────────────────────────────────
 

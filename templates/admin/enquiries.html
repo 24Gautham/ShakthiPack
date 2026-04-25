@@ -281,10 +281,15 @@ tr:hover td { background: #f8f9fb; }
             {% for enq in enquiries %}
             <tr class="{{ 'enq-unread' if not enq.get('read') }}">
               <td>
-                {% if not enq.get('read') %}
-                <span class="badge badge-orange">New</span>
+                {% set status = enq.get('status', 'new' if not enq.get('read') else 'read') %}
+                {% if status == 'resolved' %}
+                  <span class="badge badge-green">Resolved</span>
+                {% elif status == 'in_progress' %}
+                  <span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">In Progress</span>
+                {% elif not enq.get('read') %}
+                  <span class="badge badge-orange">New</span>
                 {% else %}
-                <span style="color:var(--muted);font-size:.72rem;">Read</span>
+                  <span style="color:var(--muted);font-size:.72rem;">Read</span>
                 {% endif %}
               </td>
               <td>

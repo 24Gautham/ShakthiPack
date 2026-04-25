@@ -13,10 +13,26 @@
     <div class="card-header" style="flex-direction:column;align-items:flex-start;gap:0.5rem;">
       <div style="display:flex;align-items:center;gap:0.8rem;width:100%;justify-content:space-between;">
         <div>
-          <span class="badge badge-green" style="margin-bottom:0.4rem;">Read</span>
+          {% set status = enq.get('status', 'new') %}
+          {% if status == 'resolved' %}
+            <span class="badge badge-green" style="margin-bottom:0.4rem;">Resolved</span>
+          {% elif status == 'in_progress' %}
+            <span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;margin-bottom:0.4rem;">In Progress</span>
+          {% else %}
+            <span class="badge badge-orange" style="margin-bottom:0.4rem;">New</span>
+          {% endif %}
           <h2 style="margin-top:0.2rem;">{{ enq.subject }}</h2>
         </div>
-        <div style="display:flex;gap:0.5rem;">
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <form method="POST" action="{{ url_for('admin_update_enquiry_status', enq_id=enq.id) }}" style="display:flex;gap:0.4rem;align-items:center;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="status" style="font-size:0.8rem;padding:0.3rem 0.6rem;border-radius:6px;border:1px solid var(--border);background:#fff;font-family:var(--font-body);cursor:pointer;">
+              <option value="new" {% if enq.get('status','new')=='new' %}selected{% endif %}>New</option>
+              <option value="in_progress" {% if enq.get('status')=='in_progress' %}selected{% endif %}>In Progress</option>
+              <option value="resolved" {% if enq.get('status')=='resolved' %}selected{% endif %}>Resolved</option>
+            </select>
+            <button type="submit" class="btn btn-outline btn-sm">Update</button>
+          </form>
           <form method="POST" action="{{ url_for('admin_delete_enquiry', enq_id=enq.id) }}" data-confirm="Delete this enquiry permanently?">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>

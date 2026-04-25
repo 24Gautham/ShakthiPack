@@ -32,6 +32,17 @@
 {% if recent_enquiries %}
 <div class="card mt-3">
   <div class="card-header">
+    <h2>Enquiries by Month</h2>
+  </div>
+  <div style="padding:1.2rem 1.5rem;">
+    <canvas id="enqChart" height="90"></canvas>
+  </div>
+</div>
+{% endif %}
+
+{% if recent_enquiries %}
+<div class="card mt-3">
+  <div class="card-header">
     <h2>Recent Enquiries
       {% if unread_enquiries > 0 %}<span class="badge badge-orange" style="margin-left:0.5rem;">{{ unread_enquiries }} new</span>{% endif %}
     </h2>
@@ -89,4 +100,39 @@
 {% endif %}
 
 
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+(function(){
+  var canvas = document.getElementById('enqChart');
+  if(!canvas) return;
+  fetch('{{ url_for("admin_enquiry_chart_data") }}')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: d.labels,
+          datasets: [{
+            label: 'Enquiries',
+            data: d.counts,
+            backgroundColor: 'rgba(26,86,219,0.15)',
+            borderColor: 'rgba(26,86,219,0.8)',
+            borderWidth: 1.5,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }).catch(function(){});
+})();
+</script>
 {% endblock %}

@@ -56,7 +56,7 @@
 
       <div class="spare-img-wrap">
         {% if spare.image %}
-        <img src="{{ url_for('static', filename='uploads/' + spare.image) }}" alt="{{ spare.name }}" loading="lazy">
+        <img src="{{ url_for('static', filename='uploads/' + spare.image) }}" alt="{{ spare.name }}" loading="lazy" class="lb-trigger" data-caption="{{ spare.name }}" style="cursor:zoom-in;">
         {% else %}
         <div class="spare-placeholder">🔩</div>
         {% endif %}
@@ -101,4 +101,35 @@
        class="btn btn-primary">Enquire About This Category →</a>
   </div>
 </main>
+
+<style>
+.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.lightbox-overlay.active{opacity:1;pointer-events:auto;}
+.lightbox-img{max-width:90vw;max-height:85vh;border-radius:8px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.lightbox-close{position:absolute;top:1rem;right:1.5rem;color:#fff;font-size:2rem;background:none;border:none;cursor:pointer;line-height:1;opacity:.7;}
+.lightbox-close:hover{opacity:1;}
+.lightbox-caption{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);color:#fff;font-size:.88rem;background:rgba(0,0,0,.5);padding:.4rem 1rem;border-radius:6px;white-space:nowrap;}
+</style>
+<div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button class="lightbox-close" id="lbClose" aria-label="Close">×</button>
+  <img class="lightbox-img" id="lbImg" src="" alt="">
+  <div class="lightbox-caption" id="lbCaption"></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){
+  var lb=document.getElementById('lightbox');
+  var lbImg=document.getElementById('lbImg');
+  var lbCap=document.getElementById('lbCaption');
+  function open(src,cap){ lbImg.src=src; lbCap.textContent=cap||''; lb.classList.add('active'); document.body.style.overflow='hidden'; }
+  function close(){ lb.classList.remove('active'); document.body.style.overflow=''; lbImg.src=''; }
+  document.querySelectorAll('.lb-trigger').forEach(function(img){
+    img.addEventListener('click',function(){ open(img.src, img.dataset.caption); });
+  });
+  document.getElementById('lbClose').addEventListener('click',close);
+  lb.addEventListener('click',function(e){ if(e.target===lb) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+})();
+</script>
 {% endblock %}

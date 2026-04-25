@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Compare Machines{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: linear-gradient(135deg,#f0f5ff,#e8eeff); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem; }
+.page-hero-inner { max-width: 1280px; margin: 0 auto; }
+.breadcrumb { display: flex; gap: 0.4rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+.page-hero h1 { font-family: var(--font-head); font-size: 2.5rem; font-weight: 800; }
+.page-hero p { color: var(--muted); margin-top: 0.4rem; }
+
+.compare-wrap { max-width: 1100px; margin: 2.5rem auto; padding: 0 2rem; }
+
+/* Picker */
+.picker-bar { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.picker-bar label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.picker-bar select { border: 1px solid var(--border); border-radius: 7px; padding: 0.45rem 0.8rem; font-family: var(--font-body); font-size: 0.88rem; background: #f8f9fb; color: var(--text); outline: none; }
+.picker-bar select:focus { border-color: var(--accent); }
+.add-btn { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: 0.45rem 1.1rem; font-family: var(--font-body); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: background .18s; }
+.add-btn:hover { background: var(--accent2); }
+.clear-btn { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: 0.45rem 0.9rem; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; }
+.clear-btn:hover { background: var(--surface2); }
+
+/* Comparison table */
+.compare-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.compare-table th { background: #f0f5ff; font-family: var(--font-head); font-weight: 700; padding: 1rem 1.2rem; text-align: left; font-size: 0.88rem; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+.compare-table th:last-child { border-right: none; }
+.compare-table td { padding: 0.85rem 1.2rem; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); font-size: 0.88rem; vertical-align: top; }
+.compare-table td:last-child { border-right: none; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: #fafbfd; }
+.row-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.machine-col-head { text-align: center; }
+.machine-col-head .mname { font-family: var(--font-head); font-size: 1.1rem; font-weight: 800; }
+.machine-col-head .mcat { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+.machine-col-head img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 0.7rem; }
+.machine-col-head .mplaceholder { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; background: #f0f5ff; border-radius: 8px; margin-bottom: 0.7rem; }
+.spec-val { font-weight: 600; color: var(--text); }
+.remove-link { font-size: 0.72rem; color: var(--muted); text-decoration: none; display: block; margin-top: 0.4rem; }
+.remove-link:hover { color: var(--red); }
+.enq-btn { display: block; background: var(--accent); color: #fff; text-align: center; padding: 0.55rem; border-radius: 7px; font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: background .18s; }
+.enq-btn:hover { background: var(--accent2); }
+
+.empty-state { text-align: center; padding: 4rem 2rem; background: #fff; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
+
+@media (max-width: 700px) {
+  .compare-table th, .compare-table td { padding: 0.65rem 0.7rem; font-size: 0.8rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ url_for('index') }}">Home</a> /
+      <a href="{{ url_for('machines') }}">Machines</a> /
+      <span style="color:var(--text);">Compare</span>
+    </div>
+    <h1>Compare Machines</h1>
+    <p>Select up to 3 machines to compare their specs side by side.</p>
+  </div>
+</div>
+
+<main>
+  <div class="compare-wrap">
+
+    <!-- Picker -->
+    <form method="GET" action="{{ url_for('compare') }}" id="compareForm">
+      {% for sid in selected_ids %}
+      <input type="hidden" name="id" value="{{ sid }}">
+      {% endfor %}
+      <div class="picker-bar">
+        <label>Add machine:</label>
+        <select name="add_id" id="addSelect">
+          <option value="">— Select a machine —</option>
+          {% for m in all_machines %}
+          {% if m.id not in selected_ids %}
+          <option value="{{ m.id }}">{{ m.name }} ({{ m.category }})</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+        <button type="submit" class="add-btn" id="addBtn" formaction="{{ url_for('compare') }}" onclick="handleAdd(event)">Add →</button>
+        {% if selected %}
+        <a href="{{ url_for('compare') }}" class="clear-btn">Clear all</a>
+        {% endif %}
+      </div>
+    </form>
+
+    {% if selected %}
+    <!-- Comparison table -->
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:130px;"><span class="row-label">Feature</span></th>
+          {% for m in selected %}
+          <th class="machine-col-head">
+            {% if m.image %}
+            <img src="{{ url_for('static', filename='uploads/' + m.image) }}" alt="{{ m.name }}" loading="lazy">
+            {% else %}
+            <div class="mplaceholder">⚙️</div>
+            {% endif %}
+            <div class="mname">{{ m.name }}</div>
+            <div class="mcat">{{ m.category }}</div>
+            <a class="remove-link" href="/compare?{{ selected_ids | reject('equalto', m.id) | map('string') | map('prepend', 'id=') | join('&') }}">✕ Remove</a>
+          </th>
+          {% endfor %}
+          {% if selected|length < 3 %}
+          {% for i in range(3 - selected|length) %}
+          <th style="background:#f8f9fb;text-align:center;color:var(--muted);font-size:0.82rem;font-weight:400;">
+            <div style="padding:1rem 0;">+ Add machine above</div>
+          </th>
+          {% endfor %}
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Description</td>
+          {% for m in selected %}
+          <td>{{ m.description or '—' }}</td>
+          {% endfor %}
+          {% for i in range(3 - selected|length) %}<td style="background:#fafbfd;"></td>{% endfor %}
+        </tr>
+
+        {# Collect all unique spec keys across selected machines #}
+        {% set all_spec_keys = [] %}
+        {% for m in selected %}
+          {% for spec in parse_specs(m.specs) %}
+            {% if spec.key not in all_spec_keys %}
+              {% set _ = all_spec_keys.append(spec.key) %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+
+        {% for key in all_spec_keys %}
+        <tr>
+          <td class="row-label">{{ key }}</td>
+          {% for m in selected %}
+            {% set found_val = '' %}
+            {% for spec in parse_specs(m.specs) %}
+              {% if spec.key == key %}{% set found_val = spec.val %}{% endif %}
+            {% endfor %}
+            <td><span class="spec-val">{{ found_val if found_val else '—' }}</span></td>
+          {% endfor %}
+          {% for i in range(3 - selected|length) %}<td style="background:#fafbfd;"></td>{% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+          <td class="row-label">Enquire</td>
+          {% for m in selected %}
+          <td>
+            <a class="enq-btn"
+               href="{{ url_for('enquiry', subject='Machine Purchase Enquiry', item=m.name, message='I am interested in the ' ~ m.name ~ '. Please share pricing and availability.') }}">
+              Get Quote →
+            </a>
+          </td>
+          {% endfor %}
+          {% for i in range(3 - selected|length) %}<td style="background:#fafbfd;"></td>{% endfor %}
+        </tr>
+      </tbody>
+    </table>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">⚙️</div>
+      <h2>No machines selected</h2>
+      <p>Use the picker above to add up to 3 machines and compare their specs.</p>
+      <a href="{{ url_for('machines') }}" class="btn btn-primary" style="margin-top:1.5rem;display:inline-flex;">Browse Machines →</a>
+    </div>
+    {% endif %}
+
+  </div>
+</main>
+{% endblock %}
+{% block extra_js %}
+<script>
+function handleAdd(e) {
+  e.preventDefault();
+  var sel = document.getElementById('addSelect');
+  var addId = sel.value;
+  if (!addId) return;
+  var form = document.getElementById('compareForm');
+  // Remove existing add_id hidden if any
+  var existing = form.querySelector('input[name="add_id"]');
+  if (existing) existing.remove();
+  var inp = document.createElement('input');
+  inp.type = 'hidden'; inp.name = 'id'; inp.value = addId;
+  form.appendChild(inp);
+  // Remove the select to avoid duplicating
+  sel.name = '';
+  form.submit();
+}
+</script>
+{% endblock %}
