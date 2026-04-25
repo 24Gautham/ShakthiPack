@@ -258,7 +258,7 @@ footer{background:#1e293b;border-top:1px solid var(--border);margin-top:4rem;pad
   if(!warning || !countdown) return;
   var SESSION_MS = 8 * 60 * 60 * 1000;
   var WARN_BEFORE_MS = 2 * 60 * 1000;
-  var loggedInAt = {{ session.get('logged_in_at', 0) * 1000 | int if session.get('admin') else 0 }};
+  var loggedInAt = {% if session.get('admin') %}{{ (session.get('logged_in_at', 0) * 1000) | int }}{% else %}0{% endif %};
   if(!loggedInAt) return;
   function tick(){
     var now = Date.now();
