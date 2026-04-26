@@ -1,47 +1,74 @@
 {% extends "base.html" %}
-{% block title %}Form Fill Seal Machines & Spares{% endblock %}
+{% block title %}Form Fill Seal Machines & Spare Parts{% endblock %}
 {% block extra_css %}
 <style>
-.hero { padding: 5rem 2rem; background: linear-gradient(135deg, #f0f5ff 0%, #e8eeff 50%, #f0f5ff 100%); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 60% at 70% 50%, rgba(26,86,219,0.06) 0%, transparent 70%); pointer-events: none; }
-.hero-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-.hero-eyebrow { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.2rem; }
-.hero-eyebrow span { width: 32px; height: 2px; background: var(--accent); display: block; }
-.hero-eyebrow p { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
-.hero h1 { font-family: var(--font-head); font-size: 4rem; font-weight: 800; line-height: 1.05; letter-spacing: 0.01em; margin-bottom: 1.2rem; }
-.hero h1 em { color: var(--accent); font-style: normal; }
-.hero p.lead { color: var(--muted); font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem; max-width: 480px; }
-.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-.hero-stats { display: flex; gap: 2.5rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
-.stat-num { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--accent); }
-.stat-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
-.hero-visual { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.hero-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-.hero-card .icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
-.hero-card h4 { font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; letter-spacing: 0.03em; }
-.hero-card p { color: var(--muted); font-size: 0.78rem; margin-top: 0.3rem; }
-.section { padding: 4rem 2rem; }
-.section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
-.cat-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; text-decoration: none; color: var(--text); display: block; transition: all 0.25s; position: relative; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.cat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
-.cat-card:hover { border-color: #93c5fd; transform: translateY(-3px); box-shadow: 0 6px 16px rgba(26,86,219,0.08); }
-.cat-card:hover::after { transform: scaleX(1); }
-.cat-icon { width: 48px; height: 48px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1rem; }
-.cat-card h3 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-.cat-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
-.cat-meta { margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; }
-.cat-count { font-size: 0.78rem; color: var(--muted); }
-.cat-arrow { color: var(--accent); font-size: 1rem; }
-.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
-.why-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.why-num { font-family: var(--font-head); font-size: 2.5rem; font-weight: 800; color: var(--border); margin-bottom: 0.5rem; }
-.why-item h4 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
-.why-item p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
-@media(max-width: 768px) {
-  .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
-  .hero h1 { font-size: 2.8rem; }
-  .hero-visual { display: none; }
-  .why-grid { grid-template-columns: 1fr; }
+/* HERO */
+.hero{padding:5.5rem 1.5rem;background:linear-gradient(145deg,#f0f5ff 0%,#e8eeff 55%,#f5f0ff 100%);border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(26,86,219,.06) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-60px;left:10%;width:300px;height:300px;background:radial-gradient(circle,rgba(139,92,246,.04) 0%,transparent 70%);pointer-events:none}
+.hero-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:4rem;align-items:center;position:relative;z-index:1}
+.hero-eyebrow{display:flex;align-items:center;gap:.6rem;margin-bottom:1.25rem}
+.hero-eyebrow-line{width:28px;height:2px;background:var(--accent)}
+.hero-eyebrow-text{font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-family:var(--font-head);font-size:4.2rem;font-weight:800;line-height:1.03;letter-spacing:.01em;margin-bottom:1.3rem}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero .lead{color:var(--muted);font-size:1.08rem;line-height:1.75;margin-bottom:2rem;max-width:480px}
+.hero-actions{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+.hero-stats{display:flex;gap:2rem;margin-top:2.8rem;padding-top:2rem;border-top:1px solid rgba(26,86,219,.12)}
+.stat-num{font-family:var(--font-head);font-size:2.2rem;font-weight:800;color:var(--accent);line-height:1}
+.stat-label{font-size:.72rem;color:var(--muted2);letter-spacing:.06em;text-transform:uppercase;margin-top:.2rem}
+.hero-visual{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.hero-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:1.25rem;box-shadow:var(--shadow-sm);transition:transform var(--transition),box-shadow var(--transition)}
+.hero-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.hero-card .icon{font-size:1.7rem;margin-bottom:.6rem}
+.hero-card h4{font-family:var(--font-head);font-size:1rem;font-weight:700;letter-spacing:.02em}
+.hero-card p{color:var(--muted);font-size:.78rem;margin-top:.25rem;line-height:1.5}
+
+/* SECTIONS */
+.section{padding:5rem 1.5rem}
+.section-inner{max-width:1280px;margin:0 auto}
+.section-head{margin-bottom:2.5rem}
+
+/* CATEGORY CARDS */
+.cat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.7rem;text-decoration:none;color:var(--text);display:block;transition:all .22s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.cat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#6366f1);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.cat-card:hover{border-color:#93c5fd;transform:translateY(-3px);box-shadow:0 8px 24px rgba(26,86,219,.1)}
+.cat-card:hover::before{transform:scaleX(1)}
+.cat-icon{width:46px;height:46px;background:var(--accent-light);border:1px solid #bfdbfe;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:1rem}
+.cat-card h3{font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin-bottom:.45rem}
+.cat-card p{color:var(--muted);font-size:.84rem;line-height:1.6}
+.cat-meta{margin-top:1rem;display:flex;align-items:center;justify-content:space-between}
+.cat-count{font-size:.75rem;color:var(--muted2)}
+.cat-arrow{color:var(--accent);font-size:1rem;transition:transform var(--transition)}
+.cat-card:hover .cat-arrow{transform:translateX(3px)}
+
+/* WHY SECTION */
+.why-section{background:linear-gradient(135deg,#f8faff,#f0f5ff);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
+.why-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;box-shadow:var(--shadow-sm);position:relative}
+.why-num{font-family:var(--font-head);font-size:3rem;font-weight:800;color:#e2e8f0;line-height:1;position:absolute;top:1rem;right:1.2rem}
+.why-item h4{font-family:var(--font-head);font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
+.why-item p{color:var(--muted);font-size:.85rem;line-height:1.65}
+.why-icon{font-size:1.5rem;margin-bottom:.75rem}
+
+/* CTA BANNER */
+.cta-banner{background:linear-gradient(135deg,#1a56db,#1242b0);border-radius:var(--radius-xl);padding:3rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;top:-50px;right:-50px;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%}
+.cta-banner h2{font-family:var(--font-head);font-size:2.2rem;font-weight:800;color:#fff;line-height:1.15}
+.cta-banner p{color:rgba(255,255,255,.75);margin-top:.4rem;font-size:.95rem}
+.cta-banner .btn-white{background:#fff;color:var(--accent);font-weight:700}
+.cta-banner .btn-white:hover{background:#e8f0fe}
+
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:2.5rem}
+  .hero h1{font-size:3rem}
+  .hero-visual{grid-template-columns:repeat(4,1fr)}
+  .hero-card{padding:1rem}
+  .why-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .hero-visual{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:2.5rem}
 }
 </style>
 {% endblock %}
@@ -50,87 +77,123 @@
 <section class="hero">
   <div class="hero-inner">
     <div>
-      <div class="hero-eyebrow"><span></span><p>Form Fill Seal Technology</p></div>
-      <h1>Precision <em>FFS</em> Machines & Genuine Spares</h1>
-      <p class="lead">Explore our full range of Vertical, Horizontal, Rotary and Multi-Lane FFS packaging machines — plus a comprehensive catalog of genuine spare parts.</p>
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-line"></span>
+        <span class="hero-eyebrow-text">Form Fill Seal Technology</span>
+      </div>
+      <h1>Precision <em>FFS</em> Machines<br>&amp; Genuine Spares</h1>
+      <p class="lead">Vertical, Horizontal, Rotary and Multi-Lane FFS packaging machines engineered for maximum uptime — plus a comprehensive catalog of genuine spare parts.</p>
       <div class="hero-actions">
-        <a href="{{ url_for('machines') }}" class="btn btn-primary">Browse Machines →</a>
-        <a href="{{ url_for('spares') }}" class="btn btn-outline">View Spare Parts</a>
+        <a href="{{ url_for('machines') }}" class="btn btn-primary btn-lg">Browse Machines →</a>
+        <a href="{{ url_for('enquiry') }}" class="btn btn-outline btn-lg">Get a Quote</a>
       </div>
       <div class="hero-stats">
-        <div><div class="stat-num">{{ machine_categories|length }}</div><div class="stat-label">Machine Types</div></div>
-        <div><div class="stat-num">{{ spare_categories|length }}</div><div class="stat-label">Spare Categories</div></div>
-        <div><div class="stat-num">24/7</div><div class="stat-label">Support</div></div>
+        <div>
+          <div class="stat-num">{{ machine_categories|length }}+</div>
+          <div class="stat-label">Machine Types</div>
+        </div>
+        <div>
+          <div class="stat-num">{{ spare_categories|length }}+</div>
+          <div class="stat-label">Spare Categories</div>
+        </div>
+        <div>
+          <div class="stat-num">24/7</div>
+          <div class="stat-label">Support</div>
+        </div>
       </div>
     </div>
     <div class="hero-visual">
-      <div class="hero-card"><div class="icon">⚙️</div><h4>Vertical FFS</h4><p>Granules, powders & liquids</p></div>
-      <div class="hero-card"><div class="icon">📦</div><h4>Horizontal FFS</h4><p>Biscuits, soaps & rigid products</p></div>
-      <div class="hero-card"><div class="icon">🔄</div><h4>Rotary FFS</h4><p>Stand-up pouches & ziplock</p></div>
-      <div class="hero-card"><div class="icon">🏭</div><h4>Multi-Lane</h4><p>Sachets & portion packs</p></div>
+      <div class="hero-card"><div class="icon">⚙️</div><h4>Vertical FFS</h4><p>Granules, powders &amp; liquids</p></div>
+      <div class="hero-card"><div class="icon">📦</div><h4>Horizontal FFS</h4><p>Biscuits, soaps &amp; rigid items</p></div>
+      <div class="hero-card"><div class="icon">🔄</div><h4>Rotary FFS</h4><p>Stand-up &amp; ziplock pouches</p></div>
+      <div class="hero-card"><div class="icon">🏭</div><h4>Multi-Lane</h4><p>Sachets &amp; portion packs</p></div>
     </div>
   </div>
 </section>
 
-<div class="section" style="max-width:1280px;margin:0 auto;">
-  <p class="section-label">Machine Categories</p>
-  <div class="section-header">
-    <h1>Explore Our Machine Range</h1>
-    <p>Industrial-grade FFS machines engineered for maximum uptime and efficiency.</p>
-  </div>
-  <div class="grid-4">
-    {% for cat in machine_categories %}
-    <a class="cat-card" href="{{ url_for('machine_category', slug=cat.slug) }}">
-      <div class="cat-icon">⚙️</div>
-      <h3>{{ cat.name }}</h3>
-      <p>{{ cat.description[:90] }}{% if cat.description|length > 90 %}…{% endif %}</p>
-      <div class="cat-meta">
-        <span class="cat-count">{{ cat.machines|length }} model{{ 's' if cat.machines|length != 1 }}</span>
-        <span class="cat-arrow">→</span>
-      </div>
-    </a>
-    {% endfor %}
-  </div>
-</div>
-
-<div class="section" style="max-width:1280px;margin:0 auto;padding-top:0;">
-  <p class="section-label">Spare Parts</p>
-  <div class="section-header">
-    <h1>Genuine Spare Parts Catalog</h1>
-    <p>Original replacement parts for all FFS machine models — fast dispatch available.</p>
-  </div>
-  <div class="grid-3">
-    {% for cat in spare_categories %}
-    <a class="cat-card" href="{{ url_for('spare_category', slug=cat.slug) }}">
-      <div class="cat-icon">🔩</div>
-      <h3>{{ cat.name }}</h3>
-      <p>{{ cat.description[:90] }}{% if cat.description|length > 90 %}…{% endif %}</p>
-      <div class="cat-meta">
-        <span class="cat-count">{{ cat.spares|length }} part{{ 's' if cat.spares|length != 1 }}</span>
-        <span class="cat-arrow">→</span>
-      </div>
-    </a>
-    {% endfor %}
-  </div>
-</div>
-
-<div class="section" style="max-width:1280px;margin:0 auto;padding-top:0;">
-  <p class="section-label">Why Shakthi Pack</p>
-  <div class="section-header"><h1>Built for Industry</h1></div>
-  <div class="why-grid">
-    <div class="why-item"><div class="why-num">01</div><h4>Genuine Parts Only</h4><p>All spares are OEM-grade manufactured to exact tolerances for your FFS machine models.</p></div>
-    <div class="why-item"><div class="why-num">02</div><h4>Expert Technical Support</h4><p>Our field engineers are available around the clock for commissioning and breakdown assistance.</p></div>
-    <div class="why-item"><div class="why-num">03</div><h4>Fast Dispatch</h4><p>Critical spare parts dispatched within 24 hours from our central warehouse.</p></div>
-  </div>
-</div>
-
-<div style="max-width:1280px;margin:0 auto;padding:0 2rem 4rem;">
-  <div style="background:linear-gradient(135deg,#eff6ff,#e0ecff);border:1px solid #bfdbfe;border-radius:16px;padding:3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem;">
-    <div>
-      <h2 style="font-family:var(--font-head);font-size:2rem;font-weight:800;">Need a Custom Machine or Bulk Spares?</h2>
-      <p style="color:var(--muted);margin-top:0.4rem;">Talk to our engineering team — we configure machines and supply parts to your exact requirements.</p>
+<section class="section">
+  <div class="section-inner">
+    <div class="section-head">
+      <span class="section-label">Machine Categories</span>
+      <h2 class="section-title">Our Machine Range</h2>
+      <p class="section-sub">Industrial-grade FFS machines engineered for maximum uptime and efficiency.</p>
     </div>
-    <a href="{{ url_for('enquiry') }}" class="btn btn-primary" style="font-size:1rem;padding:0.8rem 2rem;">Send an Enquiry →</a>
+    <div class="grid-4">
+      {% for cat in machine_categories %}
+      <a class="cat-card" href="{{ url_for('machine_category', slug=cat.slug) }}">
+        <div class="cat-icon">⚙️</div>
+        <h3>{{ cat.name }}</h3>
+        <p>{{ cat.description[:90] }}{% if cat.description|length > 90 %}…{% endif %}</p>
+        <div class="cat-meta">
+          <span class="cat-count">{{ cat.machines|length }} model{{ 's' if cat.machines|length != 1 }}</span>
+          <span class="cat-arrow">→</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section why-section">
+  <div class="section-inner">
+    <div class="section-head">
+      <span class="section-label">Why Shakthi Pack</span>
+      <h2 class="section-title">Built for Industry</h2>
+      <p class="section-sub">Trusted by manufacturers across food, pharma, and FMCG sectors.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-icon">🔩</div>
+        <div class="why-num">01</div>
+        <h4>Genuine Parts Only</h4>
+        <p>All spares are OEM-grade manufactured to exact tolerances for your FFS machine models — no compromises on quality.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">🛠</div>
+        <div class="why-num">02</div>
+        <h4>Expert Technical Support</h4>
+        <p>Our field engineers are available around the clock for commissioning, maintenance, and breakdown assistance.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">🚚</div>
+        <div class="why-num">03</div>
+        <h4>Fast Dispatch</h4>
+        <p>Critical spare parts dispatched within 24 hours from our central warehouse — minimising your downtime.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="section-head">
+      <span class="section-label">Spare Parts</span>
+      <h2 class="section-title">Genuine Spare Parts Catalog</h2>
+      <p class="section-sub">Original replacement parts for all FFS machine models — fast dispatch available.</p>
+    </div>
+    <div class="grid-3">
+      {% for cat in spare_categories %}
+      <a class="cat-card" href="{{ url_for('spare_category', slug=cat.slug) }}">
+        <div class="cat-icon">🔩</div>
+        <h3>{{ cat.name }}</h3>
+        <p>{{ cat.description[:90] }}{% if cat.description|length > 90 %}…{% endif %}</p>
+        <div class="cat-meta">
+          <span class="cat-count">{{ cat.spares|length }} part{{ 's' if cat.spares|length != 1 }}</span>
+          <span class="cat-arrow">→</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<div style="max-width:1280px;margin:0 auto;padding:0 1.5rem 5rem">
+  <div class="cta-banner">
+    <div style="position:relative;z-index:1">
+      <h2>Need a Custom Machine or Bulk Spares?</h2>
+      <p>Talk to our engineering team — we configure machines and supply parts to your exact requirements.</p>
+    </div>
+    <a href="{{ url_for('enquiry') }}" class="btn btn-white btn-lg" style="position:relative;z-index:1">Send an Enquiry →</a>
   </div>
 </div>
 {% endblock %}
